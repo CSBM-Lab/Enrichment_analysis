@@ -5,6 +5,7 @@ then draw a dot plot
 '''
 import pandas as pd
 import numpy as np
+from goatools import obo_parser
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
@@ -23,6 +24,15 @@ df = the DataFrame, x = 'Cluster -number'
 def DF_Reduce_Sele(df,x):
     df_filtered = df[df['Selection value'] == x]
     return df_filtered
+
+'''
+Replace GO term with GO name
+'''
+def GO_name(df):
+    #return term.name
+    for index, GO in enumerate(df['Category value']):
+            term = obo_parser.GODag('go.obo').query_term(GO)
+            df['Category value'].iloc[index] = term.name
 
 '''
 Transform [NEW DataFrame] x='column name' from string into float
@@ -81,6 +91,11 @@ if __name__ == '__main__':
     df_GOCC = DF_Reduce_Sele(df_GOCC,Sele_input)
     df_GOMF = DF_Reduce_Sele(df_GOMF,Sele_input)
 
+    # Replace GO terms with GO names
+    GO_name(df_GOBP)
+    GO_name(df_GOCC)
+    GO_name(df_GOMF)
+
     '''Let's begin to draw the plot'''
     # Plot parameters from [DataFrame] column
     x_input = 'Enrichment factor'
@@ -120,7 +135,7 @@ if __name__ == '__main__':
     fig = plt.figure(figsize=(5, 10)) ### Decide plot size (figsize=(5, 5))
     gs = fig.add_gridspec(3, hspace=0, height_ratios=h_ratios) # create 3 rows, hspace is the space between subplots
     axs = gs.subplots(sharex=True, sharey=False)
-    
+
     axs[0].scatter(x_GOBP, y_GOBP, s_GOBP, c_GOBP, cmap='coolwarm', norm=norm)
     axs[1].scatter(x_GOCC, y_GOCC, s_GOCC, c_GOCC, cmap='coolwarm', norm=norm)
     axs[2].scatter(x_GOMF, y_GOMF, s_GOMF, c_GOMF, cmap='coolwarm', norm=norm)
@@ -143,8 +158,8 @@ if __name__ == '__main__':
     axs[0].set_xticks(np.arange(x_min, x_max+0.5, 0.5))
     axs[0].tick_params(top=True)
     axs[0].xaxis.set_tick_params(labeltop=True)
-    
-#
+
+
     # Add a colorbar
     cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap='coolwarm'),
               ax=axs, anchor=(0, 0), shrink=0.5, orientation='vertical', label='FDR')
@@ -169,7 +184,7 @@ if __name__ == '__main__':
     print('legend_values:', legend_values)
 
     #plt.tight_layout() ### Rescale the fig size to fit the data
-    
+
     # Get the bounds of colorbar axis
     xmin, ymin, dx, dy = cbar.ax.get_position().bounds
 
