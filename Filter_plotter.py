@@ -9,10 +9,19 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 '''
-Reduce [DataFrame] based on 'Category column' with value x (GO or KEGG)
+Reduce [DataFrame] based on 'Category column' with value x 
+x = 'GOBP', 'GOCC', 'GOMF' or 'KEGG'
 '''
 def DF_Reduce_Cat(x):
     df_filtered = df[df['Category column'] == x]
+    return df_filtered
+
+'''
+Reduce [DataFrame] based on 'Selection value' with value x
+df = the DataFrame, x = 'Cluster -number'
+'''
+def DF_Reduce_Sele(df,x):
+    df_filtered = df[df['Selection value'] == x]
     return df_filtered
 
 '''
@@ -66,6 +75,12 @@ if __name__ == '__main__':
     df_GOCC = DF_Reduce_Cat('GOCC')
     df_GOMF = DF_Reduce_Cat('GOMF')
 
+    # Reduce DataFrame based on 'Selection value' with Sele_input
+    Sele_input = 'Cluster -810' ### Decide which Selection to use ('Cluster -number')
+    df_GOBP = DF_Reduce_Sele(df_GOBP,Sele_input)
+    df_GOCC = DF_Reduce_Sele(df_GOCC,Sele_input)
+    df_GOMF = DF_Reduce_Sele(df_GOMF,Sele_input)
+
     '''Let's begin to draw the plot'''
     # Plot parameters from [DataFrame] column
     x_input = 'Enrichment factor'
@@ -98,9 +113,12 @@ if __name__ == '__main__':
     c_max = max(c)
     norm = mpl.colors.Normalize(vmin=0, vmax=c_max)
 
+    # get the y count for subplot height_ratios
+    h_ratios = [len(y_GOBP), len(y_GOCC), len(y_GOMF)]
+
     # setup plot and draw the scatter plot
-    fig = plt.figure() ### Decide plot size (figsize=(5, 5))
-    gs = fig.add_gridspec(3, hspace=0) # create 3 rows, hspace is the space between subplots
+    fig = plt.figure(figsize=(5, 10)) ### Decide plot size (figsize=(5, 5))
+    gs = fig.add_gridspec(3, hspace=0, height_ratios=h_ratios) # create 3 rows, hspace is the space between subplots
     axs = gs.subplots(sharex=True, sharey=False)
     
     axs[0].scatter(x_GOBP, y_GOBP, s_GOBP, c_GOBP, cmap='coolwarm', norm=norm)
@@ -108,11 +126,25 @@ if __name__ == '__main__':
     axs[2].scatter(x_GOMF, y_GOMF, s_GOMF, c_GOMF, cmap='coolwarm', norm=norm)
 
     ## Set plot margins, Title and labels
-    #ax.margins(0.05, 0.05) ### Decide plot margins
-    #ax.set_xlabel(x_label)
+    #axs[0].margins(0.05, 0.05) ### Decide plot margins
+    axs[1].margins(0.1, 0.1) ### Decide plot margins
+    #axs[2].margins(0.05, 0.05) ### Decide plot margins
+    axs[2].set_xlabel(x_label)
     #ax.set_ylabel(y_label)
     #ax.set_title(Title)
 
+    # Set up tick locator on x axis
+    #ax.invert_xaxis()
+    x = x_GOBP + x_GOCC + x_GOMF
+    x_min = float(np.floor(min(x))) ### Decide lowest x tick from the min x
+    x_max = float(np.ceil(max(x))) ### Decide highest x tick from the max x
+    axs[2].set_xticks(np.arange(x_min, x_max+0.5, 0.5))
+    # Set another xticks and labels on top of the plot
+    axs[0].set_xticks(np.arange(x_min, x_max+0.5, 0.5))
+    axs[0].tick_params(top=True)
+    axs[0].xaxis.set_tick_params(labeltop=True)
+    
+#
     # Add a colorbar
     cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap='coolwarm'),
               ax=axs, anchor=(0, 0), shrink=0.5, orientation='vertical', label='FDR')
@@ -142,10 +174,10 @@ if __name__ == '__main__':
     xmin, ymin, dx, dy = cbar.ax.get_position().bounds
 
     # Setup new axis for the size chart
-    xmin -= 0.025
+    xmin -= 0.02
     ymin = 0.5
     dx = 0.1
-    dy = dy
+    dy -= 0.02
     sax = fig.add_axes([xmin, ymin, dx, dy], frame_on=False, ymargin=0.15)
 
     # Plot legend size entries onto this axis
