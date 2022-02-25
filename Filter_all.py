@@ -13,6 +13,7 @@ from sklearn.decomposition import KernelPCA
 
 '''
 Reduce [DataFrame] based on 'Category column' with value x (GO or KEGG)
+x = The Category name to keep ('GOBP', 'GOCC', 'GOMF' or 'KEGG')
 '''
 def DF_Reduce_Cat(x):
     df_filtered = df[df['Category column'] == x]
@@ -84,26 +85,40 @@ def list_add(df):
 '''
 Filter [DataFrame] with goatools to filter out more specific targets,
 input df = the DataFrame, in which column 'Category value' should be GO terms.
-keeping rows which [level >= 3]
+keeping rows which [level = 3]
 '''
 def level_filter(df):
     global Row_num, Row_keep, Row_drop
     Row_num = 0 # the row number of GO
     Row_keep = [] # the list of rows to keep
     Row_drop = [] # the list of rows to drop
-    for i in df['Category value']:
-        with suppress(AttributeError): # Skip the AttributeError(GO term is obsolete, thus not found in GO.obo) and continue
-            GO_levels(i)
+    for GO in df['Category value']:
+        try:
+            GO_levels(GO)
+            Row_num += 1
+        except AttributeError:
             Row_num += 1
 
 '''
-Use obo_parser to filter GO terms with [level]
+Replace GO term with GO name
+'''
+def GO_name(df,list):
+    #return term.name
+    for index, GO in enumerate(df['Category value']):
+        term = obo_parser.GODag('go.obo').query_term(GO)
+        print(index, GO, term.name)
+        #df['Category value'].iloc[index] = term.name
+        list.append(term.name)
+
+'''
+Use obo_parser to filter GO terms, keeping the [level == 3] Row numbers
 GO = GO term to parse
 '''
 def GO_levels(GO):
     term = obo_parser.GODag('go.obo').query_term(GO)
-    if term.level == 4:
-        Row_keep.append(Row_num) 
+    if term.level == 3:
+        Row_keep.append(Row_num)
+        print(GO)
     else:
         Row_drop.append(Row_num)
 
@@ -145,14 +160,12 @@ if __name__ == '__main__':
     df_all = pd.read_csv(MA_file, sep='\t')
 
     '''
-    Filter GO term with obo_parser
+    Reduce DataFrame to each GO category
     '''
-    Cat_input = 'GOBP' ### Decide which Category to use
-    df_GOBP = DF_Reduce_Cat(Cat_input)
-    Cat_input = 'GOCC' ### Decide which Category to use
-    df_GOCC = DF_Reduce_Cat(Cat_input)
-    Cat_input = 'GOMF' ### Decide which Category to use
-    df_GOMF = DF_Reduce_Cat(Cat_input)
+    df_GOBP = DF_Reduce_Cat('GOBP')
+    df_GOCC = DF_Reduce_Cat('GOCC')
+    df_GOMF = DF_Reduce_Cat('GOMF')
+    #df_GOCC.to_csv('df_GOCC.txt', index=False, sep='\t') ### Create the file to check
 
     '''
     Filter with obo_parser, [Depths - Levels < 3], then put the rows into the list
@@ -171,7 +184,8 @@ if __name__ == '__main__':
     #list_add(df_GOMF)
     
     '''
-    Filter with obo_parser, [Levels = 3], then put the rows into the list
+    Filter with obo_parser, [Level == 3], then put the rows into the list Row_keep
+    then use list_add to add the rows to keep into list_GO for later creating new filtered_DataFrame
     '''
     list_GO = []
     level_filter(df_GOBP)
@@ -187,8 +201,15 @@ if __name__ == '__main__':
     list_add(df_GOMF)
 
 
-    # Create DataFrame from the list, containing all the GO terms filtered
+    # Create DataFrame from the list, containing all the GO terms filtered, using original df's keys
     df_GO = pd.DataFrame(list_GO, columns=df.keys())
+
+    # Add a column of GO names based on the filtered GO terms
+    GO_names = [] # Create a list for GO names
+    GO_name(df_GO,GO_names)
+    print(GO_names)
+    df_GO['GO name'] = GO_names # Creating a new column named 'GO name' from the list GO_names
+
     df_GO.to_csv('GO_filtered.txt', index=False, sep='\t') ### Create the file to check
     ##df_GO = pd.read_csv('GO_filtered.txt', sep='\t') ### skip the above process for testing
     # Create a new list for compare results

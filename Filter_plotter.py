@@ -5,7 +5,6 @@ then draw a dot plot
 '''
 import pandas as pd
 import numpy as np
-from goatools import obo_parser
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
@@ -24,15 +23,6 @@ df = the DataFrame, x = 'Cluster -number'
 def DF_Reduce_Sele(df,x):
     df_filtered = df[df['Selection value'] == x]
     return df_filtered
-
-'''
-Replace GO term with GO name
-'''
-def GO_name(df):
-    #return term.name
-    for index, GO in enumerate(df['Category value']):
-            term = obo_parser.GODag('go.obo').query_term(GO)
-            df['Category value'].iloc[index] = term.name
 
 '''
 Transform [NEW DataFrame] x='column name' from string into float
@@ -91,15 +81,10 @@ if __name__ == '__main__':
     df_GOCC = DF_Reduce_Sele(df_GOCC,Sele_input)
     df_GOMF = DF_Reduce_Sele(df_GOMF,Sele_input)
 
-    # Replace GO terms with GO names
-    GO_name(df_GOBP)
-    GO_name(df_GOCC)
-    GO_name(df_GOMF)
-
     '''Let's begin to draw the plot'''
     # Plot parameters from [DataFrame] column
     x_input = 'Enrichment factor'
-    y_input = 'Category value'
+    y_input = 'GO name'
     s_input = 'Intersection size' ### 'Gene ratio' or 'Intersection size'(gene counts) remember to change 'M_size'
     c_input = 'Benj. Hoch. FDR'
     Title = ''
@@ -132,7 +117,7 @@ if __name__ == '__main__':
     h_ratios = [len(y_GOBP), len(y_GOCC), len(y_GOMF)]
 
     # setup plot and draw the scatter plot
-    fig = plt.figure(figsize=(5, 10)) ### Decide plot size (figsize=(5, 5))
+    fig = plt.figure(figsize=(9, 10)) ### Decide plot size (figsize=(5, 5))
     gs = fig.add_gridspec(3, hspace=0, height_ratios=h_ratios) # create 3 rows, hspace is the space between subplots
     axs = gs.subplots(sharex=True, sharey=False)
 
@@ -141,11 +126,11 @@ if __name__ == '__main__':
     axs[2].scatter(x_GOMF, y_GOMF, s_GOMF, c_GOMF, cmap='coolwarm', norm=norm)
 
     ## Set plot margins, Title and labels
-    #axs[0].margins(0.05, 0.05) ### Decide plot margins
-    axs[1].margins(0.1, 0.1) ### Decide plot margins
-    #axs[2].margins(0.05, 0.05) ### Decide plot margins
+    axs[0].margins(0.05, 0.1) ### Decide plot margins
+    axs[1].margins(0.05, 0.1) ### Decide plot margins
+    axs[2].margins(0.05, 0.5) ### Decide plot margins
     axs[2].set_xlabel(x_label)
-    #ax.set_ylabel(y_label)
+    #axs[0].set_ylabel(y_label)
     #ax.set_title(Title)
 
     # Set up tick locator on x axis
@@ -158,11 +143,13 @@ if __name__ == '__main__':
     axs[0].set_xticks(np.arange(x_min, x_max+0.5, 0.5))
     axs[0].tick_params(top=True)
     axs[0].xaxis.set_tick_params(labeltop=True)
-
+    
+    #gs.tight_layout(fig)
+    plt.tight_layout() ### Rescale the fig size to fit the data
 
     # Add a colorbar
     cbar = fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap='coolwarm'),
-              ax=axs, anchor=(0, 0), shrink=0.5, orientation='vertical', label='FDR')
+              ax=axs, anchor=(0, 0), shrink=0.5, orientation='vertical', label='Benj. Hoch. FDR')
 
     '''
     Set legend_values from the list 's', 
@@ -176,15 +163,14 @@ if __name__ == '__main__':
     s_list_range = s_list_max - s_list_min
     s_num = 0
     while True:
-        if s_num * 20 < s_list_range <= (s_num+1) * 20:
+        if s_num * 30 < s_list_range <= (s_num+1) * 30:
             legend_values = np.arange(s_list_min, s_list_max+11, (s_num+1) * 5).tolist()
             break
         else:
             s_num += 1
+    legend_values = [i for i in legend_values if i != 0] # remove '0' from the list
     print('legend_values:', legend_values)
-
-    #plt.tight_layout() ### Rescale the fig size to fit the data
-
+    
     # Get the bounds of colorbar axis
     xmin, ymin, dx, dy = cbar.ax.get_position().bounds
 
