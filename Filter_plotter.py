@@ -76,7 +76,7 @@ if __name__ == '__main__':
     df_GOMF = DF_Reduce_Cat('GOMF')
 
     # Reduce DataFrame based on 'Selection value' with Sele_input
-    Sele_input = 'Cluster -810' ### Decide which Selection to use ('Cluster -number')
+    Sele_input = 'Cluster -808' ### Decide which Selection to use ('Cluster -number')
     df_GOBP = DF_Reduce_Sele(df_GOBP,Sele_input)
     df_GOCC = DF_Reduce_Sele(df_GOCC,Sele_input)
     df_GOMF = DF_Reduce_Sele(df_GOMF,Sele_input)
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     h_ratios = [len(y_GOBP), len(y_GOCC), len(y_GOMF)]
 
     # setup plot and draw the scatter plot
-    fig = plt.figure(figsize=(9, 10)) ### Decide plot size (figsize=(5, 5))
+    fig = plt.figure(figsize=(11, 10)) ### Decide plot size (figsize=(5, 5))
     gs = fig.add_gridspec(3, hspace=0, height_ratios=h_ratios) # create 3 rows, hspace is the space between subplots
     axs = gs.subplots(sharex=True, sharey=False)
 
@@ -196,7 +196,7 @@ if __name__ == '__main__':
     legend_values = [round(num,0) for num in legend_values]
     legend_values = [int(item) for item in legend_values] ### Convert the list into integer to remove the '.0'
     sax.set_yticklabels(legend_values, fontdict = {'size':8})
-    sax.set_title(sc_title, loc='left', fontdict = {'size':8})
+    sax.set_title(sc_title, loc='left')
     sax.set_xticks([]) # Set xticks to empty
     sax.tick_params(axis='both', which='both', length=0) # Set ticks length to 0 in order to not show
 
