@@ -27,4 +27,4 @@ if __name__ == '__main__':
     # Merge DataFrame with the new duplicate removed DataFrame
     df_new = pd.concat([df, df_du], ignore_index=False)
     df_new.sort_index(inplace=True) # Sort rows with the original index 
-    df_new.to_csv('GO_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
+    df_new.to_csv('GO_filtered_rm.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
