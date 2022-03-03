@@ -4,12 +4,10 @@ Using enrichment analysis Matrix to filter out a more specific list
 then draw a dot plot
 '''
 import pandas as pd
-import numpy as np
 from goatools import obo_parser
 from io import StringIO
 from contextlib import suppress
 
-from sklearn.decomposition import KernelPCA
 
 '''
 Reduce [DataFrame] based on 'Category column' with value x (GO or KEGG)
@@ -105,7 +103,7 @@ Replace GO term with GO name
 def GO_name(df,list):
     #return term.name
     for index, GO in enumerate(df['Category value']):
-        term = obo_parser.GODag('go.obo').query_term(GO)
+        term = obo_parser.GODag('../data/go.obo').query_term(GO)
         print(index, GO, term.name)
         #df['Category value'].iloc[index] = term.name
         list.append(term.name)
@@ -115,8 +113,8 @@ Use obo_parser to filter GO terms, keeping the [level == 3] Row numbers
 GO = GO term to parse
 '''
 def GO_levels(GO):
-    term = obo_parser.GODag('go.obo').query_term(GO)
-    if term.level == 3:
+    term = obo_parser.GODag('../data/go.obo').query_term(GO)
+    if term.level >= 3:
         Row_keep.append(Row_num)
         print(GO)
     else:
@@ -154,8 +152,8 @@ def filter_all(cat):
 
 if __name__ == '__main__':
     # Read Matrix text file into pandas DataFrame
-    M_file = 'Matrix_404.txt'
-    MA_file = 'Matrix_All.txt'
+    M_file = '../data/Matrix_404.txt'
+    MA_file = '../data/Matrix_All.txt'
     df = pd.read_csv(M_file, sep='\t')
     df_all = pd.read_csv(MA_file, sep='\t')
 
@@ -210,7 +208,7 @@ if __name__ == '__main__':
     print(GO_names)
     df_GO['GO name'] = GO_names # Creating a new column named 'GO name' from the list GO_names
 
-    df_GO.to_csv('GO_filtered.txt', index=False, sep='\t') ### Create the file to check
+    df_GO.to_csv('../analysis/GO_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
     ##df_GO = pd.read_csv('GO_filtered.txt', sep='\t') ### skip the above process for testing
     # Create a new list for compare results
     the_list = []
@@ -221,5 +219,5 @@ if __name__ == '__main__':
     # Create DataFrame from the list
     df = pd.DataFrame(the_list, columns=df_all.keys())
     df = df.sort_index()
-    df = df[~df.index.duplicated(keep='first')]
-    df.to_csv('Matrix_All_filtered.txt', index=False, sep='\t') ### Create the file
+    df = df[~df.index.duplicated(keep='first')] ### Remove duplicates and keep only the first one
+    df.to_csv('../analysis/Matrix_All_filtered.txt', index=False, sep='\t') ### Create the file

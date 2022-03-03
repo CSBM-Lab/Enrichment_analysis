@@ -67,7 +67,7 @@ def df_list(df):
 
 if __name__ == '__main__':
     # Read Matrix text file into pandas DataFrame
-    M_file = 'GO_filtered.txt'
+    M_file = '../data/GO_filtered_top_20.txt'
     df = pd.read_csv(M_file, sep='\t')
 
     # Reduce DataFrame based on 'Category column'
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     h_ratios = [len(y_GOBP), len(y_GOCC), len(y_GOMF)]
 
     # setup plot and draw the scatter plot
-    fig = plt.figure(figsize=(9, 8)) ### Decide plot size (figsize=(5, 5))
+    fig = plt.figure(figsize=(10, 15)) ### Decide plot size (figsize=(5, 5))
     gs = fig.add_gridspec(3, hspace=0, height_ratios=h_ratios) # create 3 rows, hspace is the space between subplots
     axs = gs.subplots(sharex=True, sharey=False)
 
@@ -126,8 +126,8 @@ if __name__ == '__main__':
     axs[2].scatter(x_GOMF, y_GOMF, s_GOMF, c_GOMF, cmap='coolwarm', norm=norm)
 
     ## Set plot margins, Title and labels
-    axs[0].margins(0.05, 0.1) ### Decide plot margins
-    axs[1].margins(0.05, 0.1) ### Decide plot margins
+    axs[0].margins(0.05, 0.05) ### Decide plot margins
+    axs[1].margins(0.05, 0.05) ### Decide plot margins
     axs[2].margins(0.05, 0.5) ### Decide plot margins
     axs[2].set_xlabel(x_label)
     #axs[0].set_ylabel(y_label)
@@ -200,5 +200,5 @@ if __name__ == '__main__':
     sax.set_xticks([]) # Set xticks to empty
     sax.tick_params(axis='both', which='both', length=0) # Set ticks length to 0 in order to not show
 
-    plt.savefig('DotPlot_GO.png')
+    plt.savefig('../analysis/DotPlot_GO.png')
     #plt.show()

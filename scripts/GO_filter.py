@@ -17,7 +17,7 @@ def Run_filter(col):
 # Use obo_parser to reorganize GO terms
 def GO_obo(GO):
     output = StringIO()  ### print value to variable instead of printing to file or monitor
-    term = obo_parser.GODag('go.obo').query_term(GO)
+    term = obo_parser.GODag('../data/go.obo').query_term(GO)
     print(term.parents, file=output)  ### redirect the output to variable
     ##print(GO)
     ##print(term.parents)
@@ -52,7 +52,7 @@ def GO_obo(GO):
 
 if __name__ == '__main__':
     # Read GO term files as csv into df_GO
-    GO_file = 'df_GOMF.txt'
+    GO_file = '../data/df_GOMF.txt'
     df_GO = pd.read_csv(GO_file, sep='\t')
     df_GO.dropna(inplace=True) # Drop the rows with (NaN)
 
@@ -60,4 +60,4 @@ if __name__ == '__main__':
     print(Row_keep) ### print the list Row_keep to check
     df_new = df_GO.iloc[Row_keep,:]
     ##print(df_new) ### print the new DataFrame to check
-    df_new.to_csv('df_GOMF_filtered.txt', index=False, sep='\t')
+    df_new.to_csv('../analysis/df_GOMF_filtered.txt', index=False, sep='\t')

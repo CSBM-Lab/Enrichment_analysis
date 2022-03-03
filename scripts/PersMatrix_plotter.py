@@ -51,7 +51,7 @@ Use obo_parser to reorganize GO terms
 '''
 def GO_obo(GO):
     output = StringIO()  ### print value to variable instead of printing to file or monitor
-    term = obo_parser.GODag('go.obo').query_term(GO)
+    term = obo_parser.GODag('../data/go.obo').query_term(GO)
     print(term.parents, file=output)  ### redirect the output to variable
     ##print(GO)
     ##print(term.parents)
@@ -92,7 +92,7 @@ def GO_obo(GO):
 Return GO name of the GO term
 '''
 def GO_name(GO):
-    term = obo_parser.GODag('go.obo').query_term(GO)
+    term = obo_parser.GODag('../data/go.obo').query_term(GO)
     return term.name
 
 '''
@@ -104,8 +104,8 @@ def DF_list(x):
 
 if __name__ == '__main__':
     # Read Matrix text file into pandas DataFrame
-    M_file = 'Matrix_404.txt'
-    MA_file = 'Matrix_All.txt'
+    M_file = '../data/Matrix_404.txt'
+    MA_file = '../data/Matrix_All.txt'
     df = pd.read_csv(M_file, sep='\t')
     df_all = pd.read_csv(MA_file, sep='\t')
 
@@ -275,5 +275,5 @@ if __name__ == '__main__':
 
 
 
-    plt.savefig('DotPlot_GO.png')
+    plt.savefig('../analysis/DotPlot_GO.png')
     #plt.show()
