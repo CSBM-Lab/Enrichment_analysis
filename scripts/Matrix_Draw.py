@@ -47,8 +47,8 @@ df['Gene ratio'] = df['Intersection size'] / df['Category size']
 
 
 ## Create txt files to check the outcome
-df.to_csv('df_GOMF.txt', index=False, sep='\t')
-#df_all_reduced.to_csv('df_all_GOBP.txt', index=False, sep='\t')
+df.to_csv('../analysis/df_GOMF.txt', index=False, sep='\t')
+#df_all_reduced.to_csv('../analysis/df_all_GOBP.txt', index=False, sep='\t')
 
 '''Let's begin to draw the plot'''
 # Plot parameters from user

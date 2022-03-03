@@ -52,7 +52,7 @@ def GO_obo(GO):
 
 if __name__ == '__main__':
     # Read GO term files as csv into df_GO
-    GO_file = '../data/df_GOMF.txt'
+    GO_file = '../analysis/df_GOMF.txt'
     df_GO = pd.read_csv(GO_file, sep='\t')
     df_GO.dropna(inplace=True) # Drop the rows with (NaN)
 

@@ -121,8 +121,8 @@ if __name__ == '__main__':
     #df_all_reduced.dropna(inplace=True) # Drop the rows with (NaN)
 
     ## Create 2 txt files to compare
-    #df['Category value'].to_csv('df_GOBP.txt', index=False, sep='\t')
-    #df_all_reduced.to_csv('df_all_GOMF.txt', index=False, sep='\t')
+    #df['Category value'].to_csv('../analysis/df_GOBP.txt', index=False, sep='\t')
+    #df_all_reduced.to_csv('../analysis/df_all_GOMF.txt', index=False, sep='\t')
 
     #df.dropna(inplace=True) # Drop the rows with (NaN)
 

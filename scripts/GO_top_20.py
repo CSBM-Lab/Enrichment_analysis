@@ -15,7 +15,7 @@ def df_keep_20(df):
 
 if __name__ == '__main__':
     # Read Matrix text file into pandas DataFrame
-    M_file = '../data/GO_filtered.txt'
+    M_file = '../analysis/GO_filtered_rm.txt'
     df = pd.read_csv(M_file, sep='\t')
 
     '''

@@ -67,7 +67,7 @@ def df_list(df):
 
 if __name__ == '__main__':
     # Read Matrix text file into pandas DataFrame
-    M_file = '../data/GO_filtered_top_20.txt'
+    M_file = '../analysis/GO_filtered_top_20.txt'
     df = pd.read_csv(M_file, sep='\t')
 
     # Reduce DataFrame based on 'Category column'
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     df_GOMF = DF_Reduce_Cat('GOMF')
 
     # Reduce DataFrame based on 'Selection value' with Sele_input
-    Sele_input = 'Cluster -810' ### Decide which Selection to use ('Cluster -number')
+    Sele_input = 'Cluster -808' ### Decide which Selection to use ('Cluster -number')
     df_GOBP = DF_Reduce_Sele(df_GOBP,Sele_input)
     df_GOCC = DF_Reduce_Sele(df_GOCC,Sele_input)
     df_GOMF = DF_Reduce_Sele(df_GOMF,Sele_input)
@@ -128,7 +128,7 @@ if __name__ == '__main__':
     ## Set plot margins, Title and labels
     axs[0].margins(0.05, 0.05) ### Decide plot margins
     axs[1].margins(0.05, 0.05) ### Decide plot margins
-    axs[2].margins(0.05, 0.5) ### Decide plot margins
+    axs[2].margins(0.01, 0.3) ### Decide plot margins
     axs[2].set_xlabel(x_label)
     #axs[0].set_ylabel(y_label)
     #ax.set_title(Title)
