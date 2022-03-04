@@ -27,8 +27,8 @@ def DF_Reduce_Select(x):
     return df_filtered
 
 # Read Matrix text file into pandas DataFrame
-M_name = '../data/Matrix_404.txt'
-MA_name = '../data/Matrix_All.txt'
+M_name = './data/Matrix_404.txt'
+MA_name = './data/Matrix_All.txt'
 df = pd.read_csv(M_name, sep='\t')
 df_all = pd.read_csv(MA_name, sep='\t')
 
@@ -47,8 +47,8 @@ df['Gene ratio'] = df['Intersection size'] / df['Category size']
 
 
 ## Create txt files to check the outcome
-df.to_csv('../analysis/df_GOMF.txt', index=False, sep='\t')
-#df_all_reduced.to_csv('../analysis/df_all_GOBP.txt', index=False, sep='\t')
+df.to_csv('./analysis/df_GOMF.txt', index=False, sep='\t')
+#df_all_reduced.to_csv('./analysis/df_all_GOBP.txt', index=False, sep='\t')
 
 '''Let's begin to draw the plot'''
 # Plot parameters from user
@@ -158,7 +158,7 @@ for pos in ['right', 'top', 'bottom', 'left']:
 
 
 # plt.tight_layout()
-plt.savefig('../analysis/DotPlot_GO.png',bbox_inches='tight')
+plt.savefig('./analysis/DotPlot_GO.png',bbox_inches='tight')
 #plt.show()
 
 ### Output filtered data

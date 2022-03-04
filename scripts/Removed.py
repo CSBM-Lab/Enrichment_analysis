@@ -1,8 +1,8 @@
 import pandas as pd
 
 # Read Matrix text file into pandas DataFrame
-M_name = '../data/Matrix_404.txt'
-MA_name = '../data/Matrix_All.txt'
+M_name = './data/Matrix_404.txt'
+MA_name = './data/Matrix_All.txt'
 df = pd.read_csv(M_name, sep='\t')
 df_all = pd.read_csv(MA_name, sep='\t')
 

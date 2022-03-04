@@ -67,7 +67,7 @@ def df_list(df):
 
 if __name__ == '__main__':
     # Read Matrix text file into pandas DataFrame
-    M_file = '../analysis/GO_filtered_top_20.txt'
+    M_file = './analysis/GO_filtered_rm.txt'
     df = pd.read_csv(M_file, sep='\t')
 
     # Reduce DataFrame based on 'Category column'
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     h_ratios = [len(y_GOBP), len(y_GOCC), len(y_GOMF)]
 
     # setup plot and draw the scatter plot
-    fig = plt.figure(figsize=(10, 15)) ### Decide plot size (figsize=(5, 5))
+    fig = plt.figure(figsize=(8.5, 8)) ### Decide plot size (figsize=(5, 5))
     gs = fig.add_gridspec(3, hspace=0, height_ratios=h_ratios) # create 3 rows, hspace is the space between subplots
     axs = gs.subplots(sharex=True, sharey=False)
 
@@ -126,10 +126,10 @@ if __name__ == '__main__':
     axs[2].scatter(x_GOMF, y_GOMF, s_GOMF, c_GOMF, cmap='coolwarm', norm=norm)
 
     ## Set plot margins, Title and labels
-    axs[0].margins(0.05, 0.05) ### Decide plot margins
-    axs[1].margins(0.05, 0.05) ### Decide plot margins
-    axs[2].margins(0.01, 0.3) ### Decide plot margins
-    axs[2].set_xlabel(x_label)
+    axs[0].margins(0.05, 0.08) ### Decide plot margins
+    axs[1].margins(0.05, 0.08) ### Decide plot margins
+    axs[2].margins(0.01, 0.5) ### Decide plot margins
+    axs[2].set_xlabel(x_label, fontdict = {'size':12})
     #axs[0].set_ylabel(y_label)
     #ax.set_title(Title)
 
@@ -171,14 +171,17 @@ if __name__ == '__main__':
     legend_values = [i for i in legend_values if i != 0] # remove '0' from the list
     print('legend_values:', legend_values)
     
-    # Get the bounds of colorbar axis
+    '''
+    Get the bounds of colorbar axis
+    xmin = x location, ymin = y location, dx = x length, dy = y length
+    '''
     xmin, ymin, dx, dy = cbar.ax.get_position().bounds
 
     # Setup new axis for the size chart
-    xmin -= 0.02
+    xmin -= 0.01
     ymin = 0.5
-    dx = 0.1
-    dy -= 0.02
+    dx = 0.05
+    dy = dy
     sax = fig.add_axes([xmin, ymin, dx, dy], frame_on=False, ymargin=0.15)
 
     # Plot legend size entries onto this axis
@@ -195,10 +198,10 @@ if __name__ == '__main__':
     legend_values = [item / M_size for item in legend_values]
     legend_values = [round(num,0) for num in legend_values]
     legend_values = [int(item) for item in legend_values] ### Convert the list into integer to remove the '.0'
-    sax.set_yticklabels(legend_values, fontdict = {'size':8})
-    sax.set_title(sc_title, loc='left')
+    sax.set_yticklabels(legend_values)
+    sax.set_ylabel(sc_title)
     sax.set_xticks([]) # Set xticks to empty
     sax.tick_params(axis='both', which='both', length=0) # Set ticks length to 0 in order to not show
 
-    plt.savefig('../analysis/DotPlot_GO.png')
+    plt.savefig('./analysis/DotPlot_GO.png')
     #plt.show()

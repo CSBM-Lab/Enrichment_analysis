@@ -38,7 +38,7 @@ def Run_filter(col):
 # Use obo_parser to reorganize GO terms
 def GO_obo(GO):
     output = StringIO()  ### print value to variable instead of printing to file or monitor
-    term = obo_parser.GODag('../data/go.obo').query_term(GO)
+    term = obo_parser.GODag('./data/go.obo').query_term(GO)
     print(term.parents, file=output)  ### redirect the output to variable
     ##print(GO)
     ##print(term.parents)
@@ -73,8 +73,8 @@ def GO_obo(GO):
 
 if __name__ == '__main__':
     # Read Matrix text file into pandas DataFrame
-    M_file = '../data/Matrix_404.txt'
-    MA_file = '../data/Matrix_All.txt'
+    M_file = './data/Matrix_404.txt'
+    MA_file = './data/Matrix_All.txt'
     df = pd.read_csv(M_file, sep='\t')
     df_all = pd.read_csv(MA_file, sep='\t')
 
@@ -90,8 +90,8 @@ if __name__ == '__main__':
     #df_all_reduced.dropna(inplace=True) # Drop the rows with (NaN)
 
     ## Create 2 txt files to compare
-    #df['Category value'].to_csv('../analysis/df_GOBP.txt', index=False, sep='\t')
-    #df_all_reduced.to_csv('../analysis/df_all_GOMF.txt', index=False, sep='\t')
+    #df['Category value'].to_csv('./analysis/df_GOBP.txt', index=False, sep='\t')
+    #df_all_reduced.to_csv('./analysis/df_all_GOMF.txt', index=False, sep='\t')
 
     df.dropna(inplace=True) # Drop the rows with (NaN)
 
@@ -105,5 +105,5 @@ if __name__ == '__main__':
     #df_new.loc['Category size'] = Tf_float('Category size')
     #df_new['Gene ratio'] = df_new.loc['Intersection size'] / df_new.loc['Category size']
     '''This df is ready for plot drawing'''
-    ##df_new.to_csv('../analysis/df_GOMF_filtered.txt', index=False, sep='\t') ### Create a file to check
+    ##df_new.to_csv('./analysis/df_GOMF_filtered.txt', index=False, sep='\t') ### Create a file to check
     

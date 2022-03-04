@@ -15,7 +15,7 @@ def df_keep_20(df):
 
 if __name__ == '__main__':
     # Read Matrix text file into pandas DataFrame
-    M_file = '../analysis/GO_filtered_rm.txt'
+    M_file = './analysis/GO_filtered_rm.txt'
     df = pd.read_csv(M_file, sep='\t')
 
     '''
@@ -40,4 +40,4 @@ if __name__ == '__main__':
     # Merge DataFrame with the new duplicate removed DataFrame
     df_new = pd.concat([df_GOBP_810, df_GOCC_810, df_GOMF_810, df_GOBP_808, df_GOCC_808, df_GOMF_808], ignore_index=False)
     df_new.sort_index(inplace=True) # Sort rows with the original index 
-    df_new.to_csv('../analysis/GO_filtered_top_20.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
+    df_new.to_csv('./analysis/GO_filtered_top_20.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py

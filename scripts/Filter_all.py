@@ -152,8 +152,8 @@ def filter_all(cat):
 
 if __name__ == '__main__':
     # Read Matrix text file into pandas DataFrame
-    M_file = '../data/Matrix_404.txt'
-    MA_file = '../data/Matrix_All.txt'
+    M_file = './data/Matrix_404.txt'
+    MA_file = './data/Matrix_All.txt'
     df = pd.read_csv(M_file, sep='\t')
     df_all = pd.read_csv(MA_file, sep='\t')
 
@@ -163,7 +163,7 @@ if __name__ == '__main__':
     df_GOBP = DF_Reduce_Cat('GOBP')
     df_GOCC = DF_Reduce_Cat('GOCC')
     df_GOMF = DF_Reduce_Cat('GOMF')
-    #df_GOCC.to_csv('df_GOCC.txt', index=False, sep='\t') ### Create the file to check
+    #df_GOCC.to_csv('./analysis/df_GOCC.txt', index=False, sep='\t') ### Create the file to check
 
     '''
     Filter with obo_parser, [Depths - Levels < 3], then put the rows into the list
@@ -208,8 +208,8 @@ if __name__ == '__main__':
     print(GO_names)
     df_GO['GO name'] = GO_names # Creating a new column named 'GO name' from the list GO_names
 
-    df_GO.to_csv('../analysis/GO_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
-    ##df_GO = pd.read_csv('GO_filtered.txt', sep='\t') ### skip the above process for testing
+    df_GO.to_csv('./analysis/GO_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
+    ##df_GO = pd.read_csv('./analysis/GO_filtered.txt', sep='\t') ### skip the above process for testing
     # Create a new list for compare results
     the_list = []
     filter_all('GOBP')
@@ -220,4 +220,4 @@ if __name__ == '__main__':
     df = pd.DataFrame(the_list, columns=df_all.keys())
     df = df.sort_index()
     df = df[~df.index.duplicated(keep='first')] ### Remove duplicates and keep only the first one
-    df.to_csv('../analysis/Matrix_All_filtered.txt', index=False, sep='\t') ### Create the file
+    df.to_csv('./analysis/Matrix_All_filtered.txt', index=False, sep='\t') ### Create the file

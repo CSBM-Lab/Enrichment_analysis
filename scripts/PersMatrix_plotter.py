@@ -104,8 +104,8 @@ def DF_list(x):
 
 if __name__ == '__main__':
     # Read Matrix text file into pandas DataFrame
-    M_file = '../data/Matrix_404.txt'
-    MA_file = '../data/Matrix_All.txt'
+    M_file = './data/Matrix_404.txt'
+    MA_file = './data/Matrix_All.txt'
     df = pd.read_csv(M_file, sep='\t')
     df_all = pd.read_csv(MA_file, sep='\t')
 
@@ -121,8 +121,8 @@ if __name__ == '__main__':
     #df_all_reduced.dropna(inplace=True) # Drop the rows with (NaN)
 
     ## Create 2 txt files to compare
-    #df['Category value'].to_csv('../analysis/df_GOBP.txt', index=False, sep='\t')
-    #df_all_reduced.to_csv('../analysis/df_all_GOMF.txt', index=False, sep='\t')
+    #df['Category value'].to_csv('./analysis/df_GOBP.txt', index=False, sep='\t')
+    #df_all_reduced.to_csv('./analysis/df_all_GOMF.txt', index=False, sep='\t')
 
     #df.dropna(inplace=True) # Drop the rows with (NaN)
 
@@ -152,7 +152,7 @@ if __name__ == '__main__':
     df['Category size'] = Tf_float('Category size')
     df['Gene ratio'] = df['Intersection size'] / df['Category size']
     '''This df is ready for plot drawing'''
-    df.to_csv('df_GOMF_filtered.txt', index=False, sep='\t') ### Create a file to check
+    df.to_csv('./analysis/df_GOMF_filtered.txt', index=False, sep='\t') ### Create a file to check
     
     '''Let's begin to draw the plot'''
     # Plot parameters from [DataFrame] column
@@ -170,7 +170,7 @@ if __name__ == '__main__':
     df[c_input] = Tf_float(c_input)
     df[s_input] = M_size * Tf_float(s_input)
     df.dropna(inplace=True) # Drop the rows with (NaN)
-    ##df.to_csv('df_GOMF_dropped.txt', index=False, sep='\t') ### Create a file to check
+    ##df.to_csv('./analysis/df_GOMF_dropped.txt', index=False, sep='\t') ### Create a file to check
 
     # Make data into a list (not necessary for x and y)
     x = DF_list(x_input)
@@ -275,5 +275,5 @@ if __name__ == '__main__':
 
 
 
-    plt.savefig('../analysis/DotPlot_GO.png')
+    plt.savefig('./analysis/DotPlot_GO.png')
     #plt.show()
