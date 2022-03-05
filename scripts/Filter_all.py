@@ -163,6 +163,7 @@ if __name__ == '__main__':
     df_GOBP = DF_Reduce_Cat('GOBP')
     df_GOCC = DF_Reduce_Cat('GOCC')
     df_GOMF = DF_Reduce_Cat('GOMF')
+    df_KEGG = DF_Reduce_Cat('KEGG name')
     #df_GOCC.to_csv('./analysis/df_GOCC.txt', index=False, sep='\t') ### Create the file to check
 
     '''
@@ -209,6 +210,7 @@ if __name__ == '__main__':
     df_GO['GO name'] = GO_names # Creating a new column named 'GO name' from the list GO_names
 
     df_GO.to_csv('./analysis/GO_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
+    df_KEGG.to_csv('./analysis/KEGG_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
     ##df_GO = pd.read_csv('./analysis/GO_filtered.txt', sep='\t') ### skip the above process for testing
     # Create a new list for compare results
     the_list = []
