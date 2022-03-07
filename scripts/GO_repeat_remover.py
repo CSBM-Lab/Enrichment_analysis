@@ -7,7 +7,7 @@ import pandas as pd
 
 if __name__ == '__main__':
     # Read Matrix text file into pandas DataFrame
-    M_file = './analysis/LL3_GO_filtered.txt'
+    M_file = './analysis/GO_filtered_3+_rm.txt'
     df = pd.read_csv(M_file, sep='\t')
 
     '''
@@ -27,4 +27,4 @@ if __name__ == '__main__':
     # Merge DataFrame with the new duplicate removed DataFrame
     df_new = pd.concat([df, df_du], ignore_index=False)
     df_new.sort_index(inplace=True) # Sort rows with the original index 
-    df_new.to_csv('./analysis/GO_filtered_rm.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
+    df_new.to_csv('./analysis/GO_filtered_3+_rm.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py

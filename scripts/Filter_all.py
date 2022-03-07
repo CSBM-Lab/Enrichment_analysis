@@ -144,7 +144,24 @@ def filter_all(cat):
             list_temp = v.split(';')
             count = compare_all(list_temp,cat)
             if count > 0:
-                the_list.append(df_all.loc[i])
+                the_list.append(df_all.iloc[i])
+            else:
+                continue
+        else:
+            continue
+
+'''
+Select Column based on Cat_input, 
+create a list for each row then compare the filtered selection,
+keep the matching row
+'''
+def filter_sig(cat):
+    for i, v in enumerate(df_sig[cat]):
+        if type(v) == str:
+            list_temp = v.split(';')
+            count = compare_all(list_temp,cat)
+            if count > 0:
+                the_list.append(df_sig.iloc[i])
             else:
                 continue
         else:
@@ -157,61 +174,61 @@ if __name__ == '__main__':
     df = pd.read_csv(M_file, sep='\t')
     df_all = pd.read_csv(MA_file, sep='\t')
 
-    '''
-    Reduce DataFrame to each GO category
-    '''
-    df_GOBP = DF_Reduce_Cat('GOBP')
-    df_GOCC = DF_Reduce_Cat('GOCC')
-    df_GOMF = DF_Reduce_Cat('GOMF')
-    df_KEGG = DF_Reduce_Cat('KEGG name')
-    #df_GOCC.to_csv('./analysis/df_GOCC.txt', index=False, sep='\t') ### Create the file to check
-
-    '''
-    Filter with obo_parser, [Depths - Levels < 3], then put the rows into the list
-    '''
-    #list_GO = []
-    #Run_filter(df_GOBP)
+    #'''
+    #Reduce DataFrame to each GO category
+    #'''
+    #df_GOBP = DF_Reduce_Cat('GOBP')
+    #df_GOCC = DF_Reduce_Cat('GOCC')
+    #df_GOMF = DF_Reduce_Cat('GOMF')
+    #df_KEGG = DF_Reduce_Cat('KEGG name')
+    ##df_GOCC.to_csv('./analysis/df_GOCC.txt', index=False, sep='\t') ### Create the file to check
+#
+    #'''
+    #Filter with obo_parser, [Depths - Levels < 3], then put the rows into the list
+    #'''
+    ##list_GO = []
+    ##Run_filter(df_GOBP)
+    ##print('Rows to keep:', Row_keep) ### print the list Row_keep to check
+    ##list_add(df_GOBP)
+##
+    ##Run_filter(df_GOCC)
+    ##print('Rows to keep:', Row_keep) ### print the list Row_keep to check
+    ##list_add(df_GOCC)
+##
+    ##Run_filter(df_GOMF)
+    ##print('Rows to keep:', Row_keep) ### print the list Row_keep to check
+    ##list_add(df_GOMF)
+    #
+    #'''
+    #Filter with obo_parser, [Level == 3], then put the rows into the list Row_keep
+    #then use list_add to add the rows to keep into list_GO for later creating new filtered_DataFrame
+    #'''
+    list_GO = []
+    #level_filter(df_GOBP)
     #print('Rows to keep:', Row_keep) ### print the list Row_keep to check
     #list_add(df_GOBP)
 #
-    #Run_filter(df_GOCC)
+    #level_filter(df_GOCC)
     #print('Rows to keep:', Row_keep) ### print the list Row_keep to check
     #list_add(df_GOCC)
 #
-    #Run_filter(df_GOMF)
+    #level_filter(df_GOMF)
     #print('Rows to keep:', Row_keep) ### print the list Row_keep to check
     #list_add(df_GOMF)
-    
-    '''
-    Filter with obo_parser, [Level == 3], then put the rows into the list Row_keep
-    then use list_add to add the rows to keep into list_GO for later creating new filtered_DataFrame
-    '''
-    list_GO = []
-    level_filter(df_GOBP)
-    print('Rows to keep:', Row_keep) ### print the list Row_keep to check
-    list_add(df_GOBP)
-
-    level_filter(df_GOCC)
-    print('Rows to keep:', Row_keep) ### print the list Row_keep to check
-    list_add(df_GOCC)
-
-    level_filter(df_GOMF)
-    print('Rows to keep:', Row_keep) ### print the list Row_keep to check
-    list_add(df_GOMF)
-
-
-    # Create DataFrame from the list, containing all the GO terms filtered, using original df's keys
-    df_GO = pd.DataFrame(list_GO, columns=df.keys())
-
-    # Add a column of GO names based on the filtered GO terms
-    GO_names = [] # Create a list for GO names
-    GO_name(df_GO,GO_names)
-    print(GO_names)
-    df_GO['GO name'] = GO_names # Creating a new column named 'GO name' from the list GO_names
-
-    df_GO.to_csv('./analysis/GO_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
-    df_KEGG.to_csv('./analysis/KEGG_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
-    ##df_GO = pd.read_csv('./analysis/GO_filtered.txt', sep='\t') ### skip the above process for testing
+#
+#
+    ## Create DataFrame from the list, containing all the GO terms filtered, using original df's keys
+    #df_GO = pd.DataFrame(list_GO, columns=df.keys())
+#
+    ## Add a column of GO names based on the filtered GO terms
+    #GO_names = [] # Create a list for GO names
+    #GO_name(df_GO,GO_names)
+    #print(GO_names)
+    #df_GO['GO name'] = GO_names # Creating a new column named 'GO name' from the list GO_names
+#
+    #df_GO.to_csv('./analysis/GO_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
+    #df_KEGG.to_csv('./analysis/KEGG_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
+    df_GO = pd.read_csv('./analysis/LL3_GO_filtered.txt', sep='\t') ### skip the above process for testing
     # Create a new list for compare results
     the_list = []
     filter_all('GOBP')
@@ -223,3 +240,16 @@ if __name__ == '__main__':
     df = df.sort_index()
     df = df[~df.index.duplicated(keep='first')] ### Remove duplicates and keep only the first one
     df.to_csv('./analysis/Matrix_All_filtered.txt', index=False, sep='\t') ### Create the file
+
+    # Create a new list for compare results
+    df_sig = df_all.loc[df_all["Student's T-test Significant D336H_ipc"] == '+']
+    the_list = []
+    filter_sig('GOBP')
+    filter_sig('GOCC')
+    filter_sig('GOMF')
+
+    # Create DataFrame from the list
+    df = pd.DataFrame(the_list, columns=df_all.keys())
+    df = df.sort_index()
+    df = df[~df.index.duplicated(keep='first')] ### Remove duplicates and keep only the first one
+    df.to_csv('./analysis/Matrix_All_sig.txt', index=False, sep='\t') ### Create the file
