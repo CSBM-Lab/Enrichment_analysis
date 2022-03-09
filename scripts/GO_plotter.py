@@ -67,7 +67,7 @@ def df_list(df):
 
 if __name__ == '__main__':
     # Read Matrix text file into pandas DataFrame
-    M_file = './analysis/GO_filtered_rm.txt'
+    M_file = './analysis/GO_filtered_3+_rm0_top_20.txt'
     df = pd.read_csv(M_file, sep='\t')
 
     # Reduce DataFrame based on 'Category column'
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     df_GOMF = DF_Reduce_Cat('GOMF')
 
     # Reduce DataFrame based on 'Selection value' with Sele_input
-    Sele_input = 'Cluster -808' ### Decide which Selection to use ('Cluster -number')
+    Sele_input = 'Cluster -810' ### Decide which Selection to use ('Cluster -number')
     df_GOBP = DF_Reduce_Sele(df_GOBP,Sele_input)
     df_GOCC = DF_Reduce_Sele(df_GOCC,Sele_input)
     df_GOMF = DF_Reduce_Sele(df_GOMF,Sele_input)
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     h_ratios = [len(y_GOBP), len(y_GOCC), len(y_GOMF)]
 
     # setup plot and draw the scatter plot
-    fig = plt.figure(figsize=(8.5, 8)) ### Decide plot size (figsize=(5, 5))
+    fig = plt.figure(figsize=(11, 12)) ### Decide plot size (figsize=(5, 5))
     gs = fig.add_gridspec(3, hspace=0, height_ratios=h_ratios) # create 3 rows, hspace is the space between subplots
     axs = gs.subplots(sharex=True, sharey=False)
 
@@ -126,8 +126,8 @@ if __name__ == '__main__':
     axs[2].scatter(x_GOMF, y_GOMF, s_GOMF, c_GOMF, cmap='coolwarm', norm=norm)
 
     ## Set plot margins, Title and labels
-    axs[0].margins(0.05, 0.08) ### Decide plot margins
-    axs[1].margins(0.05, 0.08) ### Decide plot margins
+    axs[0].margins(0.05, 0.05) ### Decide plot margins
+    axs[1].margins(0.05, 0.05) ### Decide plot margins
     axs[2].margins(0.01, 0.5) ### Decide plot margins
     axs[2].set_xlabel(x_label, fontdict = {'size':12})
     #axs[0].set_ylabel(y_label)
@@ -179,7 +179,7 @@ if __name__ == '__main__':
 
     # Setup new axis for the size chart
     xmin -= 0.01
-    ymin = 0.5
+    ymin = 0.52
     dx = 0.05
     dy = dy
     sax = fig.add_axes([xmin, ymin, dx, dy], frame_on=False, ymargin=0.15)

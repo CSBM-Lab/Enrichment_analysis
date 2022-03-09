@@ -101,7 +101,7 @@ if __name__ == '__main__':
 
     
     # setup plot and draw the scatter plot
-    fig = plt.figure(figsize=(7, 3)) ### Decide plot size (figsize=(5, 5))
+    fig = plt.figure(figsize=(7, 3.3)) ### Decide plot size (figsize=(5, 5))
     gs = fig.add_gridspec(2, hspace=0, height_ratios=h_ratios) # create 3 rows, hspace is the space between subplots
     axs = gs.subplots(sharex=True, sharey=False)
 
@@ -121,10 +121,10 @@ if __name__ == '__main__':
     x_min = float(np.floor(min(x))) ### Decide lowest x tick from the min x
     x_max = float(np.ceil(max(x))) ### Decide highest x tick from the max x
     axs[1].set_xticks(np.arange(x_min, x_max+0.5, 0.5))
-    ## Set another xticks and labels on top of the plot
-    #axs[0].set_xticks(np.arange(x_min, x_max+0.5, 0.5))
-    #axs[0].tick_params(top=True)
-    #axs[0].xaxis.set_tick_params(labeltop=True)
+    # Set another xticks and labels on top of the plot
+    axs[0].set_xticks(np.arange(x_min, x_max+0.5, 0.5))
+    axs[0].tick_params(top=True)
+    axs[0].xaxis.set_tick_params(labeltop=True)
     plt.tight_layout() ### Rescale the fig size to fit the data
 
     # Add a colorbar
@@ -159,7 +159,7 @@ if __name__ == '__main__':
 
     # Setup new axis for the size chart
     xmin -= 0.01
-    ymin = 0.6
+    ymin = 0.55
     dx = 0.05
     dy = dy
     sax = fig.add_axes([xmin, ymin, dx, dy], frame_on=False, ymargin=0.15)

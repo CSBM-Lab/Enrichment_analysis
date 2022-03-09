@@ -252,4 +252,4 @@ if __name__ == '__main__':
     df = pd.DataFrame(the_list, columns=df_all.keys())
     df = df.sort_index()
     df = df[~df.index.duplicated(keep='first')] ### Remove duplicates and keep only the first one
-    df.to_csv('./analysis/Matrix_All_sig.txt', index=False, sep='\t') ### Create the file
+    df.to_csv('./analysis/Matrix_sig_filtered.txt', index=False, sep='\t') ### Create the file
