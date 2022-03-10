@@ -1,7 +1,7 @@
 '''
 Based on Perseus v1.6.15.0
-Using enrichment analysis Matrix to filter out a more specific list
-then draw a dot plot
+Using Perseus output Matrix to do enrichment analysis, generate a more specific list
+for plot drawing
 '''
 import pandas as pd
 import numpy as np
