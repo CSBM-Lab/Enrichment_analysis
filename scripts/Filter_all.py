@@ -10,7 +10,7 @@ from goatools import obo_parser
 from io import StringIO
 from contextlib import suppress
 from pathlib import Path
-from utilities import create_folder, text_color, read_df
+from utilities import create_folder, text_color, read_df, df_cat_filter
 
 
 __author__ = "Johnathan Lin <jagonball@g-mail.nsysu.edu.tw>"
@@ -32,54 +32,67 @@ def main():
     parent_output_folder = Path(data["general"]["output_folder"])
     print(project_name)
     print(parent_output_folder)
-    # create_folder(project_name, parent_output_folder, verbose=True)
+    output_folder = create_folder(project_name,
+                                  parent_output_folder,
+                                  verbose=True)
     input_file = Path(data["general"]["input_whole_matrix"])
     df_whole = read_df(input_file)
-    print(df_whole.shape)
+    print(f'The shape of whole matrix: {df_whole.shape}')
     input_sig_file = Path(data["general"]["input_sig_matrix"])
     df_sig = read_df(input_sig_file)
-    print(df_sig.shape)
-
+    print(f'The shape of significance matrix: {df_sig.shape}')
+    # print(df_sig)
     
 
-    output_folder = Path('C:/Repositories/Enrichment_analysis/analysis/update')
-    # Read Matrix text file into pandas DataFrame
-    M_file = Path('C:/Repositories/Enrichment_analysis/data/Matrix_404.txt')
-    MA_file = Path('C:/Repositories/Enrichment_analysis/data/Matrix_All.txt')
-    significant_name = "Student's T-test Significant D336H_ipc"
-    obo_file = Path('C:/Repositories/Enrichment_analysis/data/go.obo')
-    df = pd.read_csv(M_file, sep='\t')
-    df_all = pd.read_csv(MA_file, sep='\t')
-    df.head()
+    # output_folder = Path('C:/Repositories/Enrichment_analysis/analysis/update')
+    # # Read Matrix text file into pandas DataFrame
+    # M_file = Path('C:/Repositories/Enrichment_analysis/data/Matrix_404.txt')
+    # MA_file = Path('C:/Repositories/Enrichment_analysis/data/Matrix_All.txt')
+    # significant_name = "Student's T-test Significant D336H_ipc"
+    # obo_file = Path('C:/Repositories/Enrichment_analysis/data/go.obo')
+    # df = pd.read_csv(M_file, sep='\t')
+    # df_all = pd.read_csv(MA_file, sep='\t')
+    # df.head()
+
+    ## Reduce dataframe to target category.
+    # The annotation category column.
+    col_cat = data["go"]["column_category"]
+    select_cat = data["go"]["select_category"]
+    df_select_cat = df_cat_filter(df_sig, col_cat, select_cat)
+    print(f'The shape of selected category: {df_select_cat.shape}')
+    if data["go"]["save_file"]:
+        df_select_cat.to_csv(output_folder / data["go"]["file_name"],
+                             index=False,
+                             sep='\t')
+    
+
+    # ## Skipping this part for now.
+    # '''
+    # Filter with obo_parser, [Level >= 3], then put the rows into the list Row_keep
+    # then use list_add to add the rows to keep into list_GO for later creating new filtered_DataFrame
+    # '''
+    # list_GO = []
+    # level_filter(df_GOBP, obo_file)
+    # ## The above level_filter will create 2 lists: Row_keep and Row_drop,
+    # ## indicating the row numbers to keep or drop.
+    # print('Rows to keep:', Row_keep) ### print the list Row_keep to check
+    # list_add(list_GO, df_GOBP)
+    # ## The above list_add will append the rows to keep as values.
+    # ## Based on the list Row_keep.
+
+    # level_filter(df_GOCC, obo_file)
+    # print('Rows to keep:', Row_keep) ### print the list Row_keep to check
+    # list_add(list_GO, df_GOCC)
+
+    # level_filter(df_GOMF, obo_file)
+    # print('Rows to keep:', Row_keep) ### print the list Row_keep to check
+    # list_add(list_GO, df_GOMF)
+
+    # # Create DataFrame from the list, containing all the GO terms filtered, using original df's keys
+    # df_GO = pd.DataFrame(list_GO, columns=df.keys())
 
 
-    ### Reduce DataFrame to each GO category
-    df_GOBP = DF_Reduce_Cat(df, 'GOBP')
-    df_GOCC = DF_Reduce_Cat(df, 'GOCC')
-    df_GOMF = DF_Reduce_Cat(df, 'GOMF')
-    df_KEGG = DF_Reduce_Cat(df, 'KEGG name')
-    df_GOCC.to_csv(output_folder / 'df_GOCC.txt', index=False, sep='\t') # Write to file
-
-    '''
-    Filter with obo_parser, [Level >= 3], then put the rows into the list Row_keep
-    then use list_add to add the rows to keep into list_GO for later creating new filtered_DataFrame
-    '''
-    list_GO = []
-    level_filter(df_GOBP, obo_file)
-    print('Rows to keep:', Row_keep) ### print the list Row_keep to check
-    list_add(list_GO, df_GOBP)
-
-    level_filter(df_GOCC, obo_file)
-    print('Rows to keep:', Row_keep) ### print the list Row_keep to check
-    list_add(list_GO, df_GOCC)
-
-    level_filter(df_GOMF, obo_file)
-    print('Rows to keep:', Row_keep) ### print the list Row_keep to check
-    list_add(list_GO, df_GOMF)
-
-    # Create DataFrame from the list, containing all the GO terms filtered, using original df's keys
-    df_GO = pd.DataFrame(list_GO, columns=df.keys())
-
+    ## Current DataFrame (df_select_cat) only have GO id, no GO names.
     # Add a column of GO names based on the filtered GO terms
     GO_names = [] # Create a list for GO names
     GO_name(df_GO, obo_file, GO_names)
@@ -115,14 +128,6 @@ def main():
     df = df[~df.index.duplicated(keep='first')] ### Remove duplicates and keep only the first one
     df.to_csv(output_folder / 'Matrix_sig_filtered.txt', index=False, sep='\t') ### Create the file
 
-
-'''
-Reduce [DataFrame] based on 'Category column' with value x (GO or KEGG)
-x = The Category name to keep ('GOBP', 'GOCC', 'GOMF' or 'KEGG')
-'''
-def DF_Reduce_Cat(df, x):
-    df_filtered = df[df['Category column'] == x]
-    return df_filtered
 
 
 '''

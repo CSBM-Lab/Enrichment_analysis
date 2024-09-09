@@ -2,6 +2,7 @@
 Some useful utilities.
 """
 import os
+import sys
 from glob import glob
 from pathlib import Path
 import pandas as pd
@@ -22,11 +23,12 @@ def create_folder(folder_name, path_to_folder, verbose = False):
     """
     final_folder = path_to_folder / folder_name
     if verbose:
-        print(f'Checking if folder "{folder_name}" '
-              f'exists in "{path_to_folder}"...')
+        print(f'Checking if folder "{text_color(folder_name, color="green")}" '
+              f'exists in "{text_color(path_to_folder, color="gray")}"...')
     if folder_name not in os.listdir(path_to_folder):
         if verbose:
-            print(f'## Folder "{folder_name}" not found, creating...')
+            print(f'## Folder "{text_color(folder_name, color="green")}" '
+                  f'not found, creating...')
         os.mkdir(final_folder) 
     return final_folder
 
@@ -148,5 +150,26 @@ def read_df(file_path,
 
 
 def df_cat_filter(df, col, condition):
-    df_filtered = df[df[col] == condition]
+    """Filter category column with values.
+
+    :param df: Input DataFrame
+    :type df: DataFrame
+    :param col: The category column name
+    :type col: str
+    :param condition: Target value(s) to keep
+    :type condition: str, list
+    :return: The filtered DataFrame
+    :rtype: DataFrame
+    """
+    if isinstance(condition, str):
+        df_filtered = df[df[col] == condition]
+    elif isinstance(condition, list):
+        df_filtered = df[df[col].isin(condition)]
+    else:
+        print(f'{text_color("Error", color="bright red")}: '
+              f'the condition must be '
+              f'{text_color("string", color="green")} or '
+              f'{text_color("list", color="green")}, '
+              f'the provided input is: {text_color(condition, color="red")}')
+        sys.exit()
     return df_filtered
