@@ -3,15 +3,15 @@ general:
     # Project name. (A subfolder will be created for outputs.)
     project_name: 001_iPSC
     # Main output folder.
-    output_folder: D:/Repositories/Enrichment_analysis/analysis
+    output_folder: C:/Repositories/Enrichment_analysis/analysis
     # Path to full matrix file.
-    input_full_matrix: D:/Repositories/Enrichment_analysis/data/Matrix_All.txt
+    input_whole_matrix: C:/Repositories/Enrichment_analysis/data/Matrix_All.txt
     # The column name for significance.
     column_sig: Student's T-test Significant D336H_ipc
     # The marking for significance.
     sig_mark: +
     # Path to statistical significance test result. (ex. Fisher's exact test)
-    input_sig_matrix: D:/Repositories/Enrichment_analysis/data/Matrix_404.txt
+    input_sig_matrix: C:/Repositories/Enrichment_analysis/data/Matrix_404.txt
     # Path to go.obo file.
-    obo_file: D:/Repositories/Enrichment_analysis/data/go.obo
+    obo_file: C:/Repositories/Enrichment_analysis/data/go.obo
     

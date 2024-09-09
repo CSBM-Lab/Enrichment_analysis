@@ -3,6 +3,8 @@ Some useful utilities.
 """
 import os
 from glob import glob
+from pathlib import Path
+import pandas as pd
 
 __author__ = "Johnathan Lin <jagonball@g-mail.nsysu.edu.tw>"
 __email__ = "jagonball@g-mail.nsysu.edu.tw"
@@ -94,3 +96,57 @@ def text_color(text, color=None, background=None):
 # cyan 36
 # white   = "\033[37m"
 # nocolor = "\033[0m"
+
+
+
+###====== DataFrame management ======###
+def read_df(file_path,
+            sheet_name=0,
+            delimiter='\t',
+            header=0,
+            index_col=None,
+            usecols=None):
+    """Read data matrix with Pandas, accept csv, tsv, or excel.
+
+    :param file_path: Path to the file
+    :type file_path: str or Path
+    :param sheet_name: Strings are used for sheet names. Integers are used in zero-indexed sheet positions, defaults to 0
+    :type sheet_name: str, int, optional
+    :param delimiter: Character or regex pattern to treat as the delimiter, defaults to '\t'
+    :type delimiter: str, optional
+    :param header: Row number(s) containing column labels and marking the start of the data (zero-indexed), defaults to 0
+    :type header: int, Sequence of int, optional
+    :param index_col: Column(s) to use as row label(s), denoted either by column labels or column indices., defaults to None
+    :type index_col: Hashable, Sequence of Hashable or False, optional
+    :param usecols: Subset of columns to select, denoted either by column labels or column indices, defaults to None
+    :type usecols: Sequence of Hashable or Callable, optional
+    :return: The DataFrame
+    :rtype: DataFrame
+    """
+    file_path = Path(file_path)
+    # Check suffix, read file accordingly.
+    excel = ['.xls', '.xlsx', '.xlsm',
+             '.xlsb', '.odf', '.ods', '.odt']
+    if file_path.suffix in excel:
+        df = pd.read_excel(file_path,
+                           sheet_name=sheet_name,
+                           header=header,
+                           index_col=index_col,
+                           usecols=usecols)
+    elif file_path.suffix == '.csv':
+        df = pd.read_csv(file_path,
+                         header=header,
+                         index_col=index_col,
+                         usecols=usecols)
+    else:
+        df = pd.read_table(file_path,
+                           sep=delimiter,
+                           header=header,
+                           index_col=index_col,
+                           usecols=usecols)
+    return df
+
+
+def df_cat_filter(df, col, condition):
+    df_filtered = df[df[col] == condition]
+    return df_filtered
