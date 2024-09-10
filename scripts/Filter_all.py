@@ -42,6 +42,7 @@ def main():
     df_sig = read_df(input_sig_file)
     print(f'The shape of significance matrix: {df_sig.shape}')
     # print(df_sig)
+    obo_file = Path(data["general"]["obo_file"])
     
 
     # output_folder = Path('C:/Repositories/Enrichment_analysis/analysis/update')
@@ -60,73 +61,93 @@ def main():
     select_cat = data["go"]["select_category"]
     df_select_cat = df_cat_filter(df_sig, col_cat, select_cat)
     print(f'The shape of selected category: {df_select_cat.shape}')
-    if data["go"]["save_file"]:
-        df_select_cat.to_csv(output_folder / data["go"]["file_name"],
+    if data["go"]["save_selected_file"]:
+        df_select_cat.to_csv(output_folder / data["go"]["selected_file_name"],
                              index=False,
                              sep='\t')
     
 
-    # ## Skipping this part for now.
-    # '''
-    # Filter with obo_parser, [Level >= 3], then put the rows into the list Row_keep
-    # then use list_add to add the rows to keep into list_GO for later creating new filtered_DataFrame
-    # '''
-    # list_GO = []
-    # level_filter(df_GOBP, obo_file)
-    # ## The above level_filter will create 2 lists: Row_keep and Row_drop,
-    # ## indicating the row numbers to keep or drop.
-    # print('Rows to keep:', Row_keep) ### print the list Row_keep to check
-    # list_add(list_GO, df_GOBP)
-    # ## The above list_add will append the rows to keep as values.
-    # ## Based on the list Row_keep.
+    """
+    ## Skipping this part for now.
+    '''
+    Filter with obo_parser, [Level >= 3], then put the rows into the list Row_keep
+    then use list_add to add the rows to keep into list_GO for later creating new filtered_DataFrame
+    '''
+    list_GO = []
+    level_filter(df_GOBP, obo_file)
+    ## The above level_filter will create 2 lists: Row_keep and Row_drop,
+    ## indicating the row numbers to keep or drop.
+    print('Rows to keep:', Row_keep) ### print the list Row_keep to check
+    list_add(list_GO, df_GOBP)
+    ## The above list_add will append the rows to keep as values.
+    ## Based on the list Row_keep.
 
-    # level_filter(df_GOCC, obo_file)
-    # print('Rows to keep:', Row_keep) ### print the list Row_keep to check
-    # list_add(list_GO, df_GOCC)
+    level_filter(df_GOCC, obo_file)
+    print('Rows to keep:', Row_keep) ### print the list Row_keep to check
+    list_add(list_GO, df_GOCC)
 
-    # level_filter(df_GOMF, obo_file)
-    # print('Rows to keep:', Row_keep) ### print the list Row_keep to check
-    # list_add(list_GO, df_GOMF)
+    level_filter(df_GOMF, obo_file)
+    print('Rows to keep:', Row_keep) ### print the list Row_keep to check
+    list_add(list_GO, df_GOMF)
 
-    # # Create DataFrame from the list, containing all the GO terms filtered, using original df's keys
-    # df_GO = pd.DataFrame(list_GO, columns=df.keys())
+    # Create DataFrame from the list, containing all the GO terms filtered, using original df's keys
+    df_GO = pd.DataFrame(list_GO, columns=df.keys())
+    """
 
 
     ## Current DataFrame (df_select_cat) only have GO id, no GO names.
-    # Add a column of GO names based on the filtered GO terms
-    GO_names = [] # Create a list for GO names
-    GO_name(df_GO, obo_file, GO_names)
-    print(GO_names)
-    df_GO['GO name'] = GO_names # Creating a new column named 'GO name' from the list GO_names
+    # Check optional parameters.
+    if data["go"]["column_go_level"]:
+        level_col = data["go"]["column_go_level"]
+    if data["go"]["column_go_depth"]:
+        depth_col = data["go"]["column_go_depth"]
+    # Annotate GO name (level, depth) based on the GO id.
+    df_select_cat_name = parse_go_name(df_select_cat,
+                                       obo_file,
+                                       data["go"]["column_id"],
+                                       data["go"]["column_go_name"],
+                                       level_col,
+                                       depth_col,
+                                       data["go"]["load_obsolete"])
+    print(df_select_cat_name)
+    if data["go"]["save_go_file"]:
+        df_select_cat.to_csv(output_folder / data["go"]["go_file_name"],
+                             index=False,
+                             sep='\t')
 
-    df_GO.to_csv(output_folder / 'GO_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
-    df_KEGG.to_csv(output_folder / 'KEGG_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
+    # GO_names = [] # Create a list for GO names
+    # GO_name(df_GO, obo_file, GO_names)
+    # print(GO_names)
+    # df_GO['GO name'] = GO_names # Creating a new column named 'GO name' from the list GO_names
+
+    # df_GO.to_csv(output_folder / 'GO_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
+    # df_KEGG.to_csv(output_folder / 'KEGG_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
     
-    # Create a new list for compare results
-    #df_GO = pd.read_csv(output_folder / 'LL3_GO_filtered.txt', sep='\t') ### skip the above process for testing
-    rows_list = []
-    rows_list = filter_all(df_all, df_GO, 'GOBP', rows_list)
-    rows_list = filter_all(df_all, df_GO, 'GOCC', rows_list)
-    rows_list = filter_all(df_all, df_GO, 'GOMF', rows_list)
+    # # Create a new list for compare results
+    # #df_GO = pd.read_csv(output_folder / 'LL3_GO_filtered.txt', sep='\t') ### skip the above process for testing
+    # rows_list = []
+    # rows_list = filter_all(df_all, df_GO, 'GOBP', rows_list)
+    # rows_list = filter_all(df_all, df_GO, 'GOCC', rows_list)
+    # rows_list = filter_all(df_all, df_GO, 'GOMF', rows_list)
     
-    # Create DataFrame from the list
-    df = pd.DataFrame(rows_list, columns=df_all.keys())
-    df = df.sort_index()
-    df = df[~df.index.duplicated(keep='first')] ### Remove duplicates and keep only the first one
-    df.to_csv(output_folder / 'Matrix_All_filtered.txt', index=False, sep='\t') ### Create the file
+    # # Create DataFrame from the list
+    # df = pd.DataFrame(rows_list, columns=df_all.keys())
+    # df = df.sort_index()
+    # df = df[~df.index.duplicated(keep='first')] ### Remove duplicates and keep only the first one
+    # df.to_csv(output_folder / 'Matrix_All_filtered.txt', index=False, sep='\t') ### Create the file
 
-    # Create a new list for compare results
-    df_sig = df_all.loc[df_all[significant_name] == '+']
-    rows_list = []
-    rows_list = filter_sig(df_sig, df_all, df_GO, 'GOBP', rows_list)
-    rows_list = filter_sig(df_sig, df_all, df_GO, 'GOCC', rows_list)
-    rows_list = filter_sig(df_sig, df_all, df_GO, 'GOMF', rows_list)
+    # # Create a new list for compare results
+    # df_sig = df_all.loc[df_all[significant_name] == '+']
+    # rows_list = []
+    # rows_list = filter_sig(df_sig, df_all, df_GO, 'GOBP', rows_list)
+    # rows_list = filter_sig(df_sig, df_all, df_GO, 'GOCC', rows_list)
+    # rows_list = filter_sig(df_sig, df_all, df_GO, 'GOMF', rows_list)
 
-    # Create DataFrame from the list
-    df = pd.DataFrame(rows_list, columns=df_all.keys())
-    df = df.sort_index()
-    df = df[~df.index.duplicated(keep='first')] ### Remove duplicates and keep only the first one
-    df.to_csv(output_folder / 'Matrix_sig_filtered.txt', index=False, sep='\t') ### Create the file
+    # # Create DataFrame from the list
+    # df = pd.DataFrame(rows_list, columns=df_all.keys())
+    # df = df.sort_index()
+    # df = df[~df.index.duplicated(keep='first')] ### Remove duplicates and keep only the first one
+    # df.to_csv(output_folder / 'Matrix_sig_filtered.txt', index=False, sep='\t') ### Create the file
 
 
 
@@ -161,13 +182,39 @@ def level_filter(df, obo_file):
 '''
 Replace GO term with GO name
 '''
-def GO_name(df, obo_file, list):
-    #return term.name
-    for index, GO in enumerate(df['Category value']):
-        term = obo_parser.GODag(obo_file).query_term(GO)
-        print(index, GO, term.name)
-        #df['Category value'].iloc[index] = term.name
-        list.append(term.name)
+def parse_go_name(df, obo_file, col, name_col,
+                  level_col=False,
+                  depth_col=False,
+                  obsolete=False):
+    name_list = []
+    level_list = []
+    depth_list = []
+    for index, go_id in enumerate(df[col]):
+        term = obo_parser.GODag(obo_file, load_obsolete=obsolete).query_term(go_id)
+        # term (GO object): [item_id, level, depth, name, namespace]
+        # Some GO id may be obsolete or not found from the provided go.obo file.
+        # In these cases the result "term" will be "None".
+        if term is not None:
+            print(index, go_id, term.name)
+            # print(term)
+            # Save the queried name to DataFrame.
+            name_list.append(term.name)
+            if level_col:
+                level_list.append(term.level)
+            if depth_col:
+                depth_list.append(term.depth)
+        else:
+            name_list.append("")
+            if level_col:
+                level_list.append("")
+            if depth_col:
+                depth_list.append("")
+    df[name_col] = name_list
+    if level_col:
+        df[level_col] = level_list
+    if depth_col:
+        df[depth_col] = depth_list
+    return df
 
 
 '''

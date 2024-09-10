@@ -135,11 +135,6 @@ def read_df(file_path,
                            header=header,
                            index_col=index_col,
                            usecols=usecols)
-    elif file_path.suffix == '.csv':
-        df = pd.read_csv(file_path,
-                         header=header,
-                         index_col=index_col,
-                         usecols=usecols)
     else:
         df = pd.read_table(file_path,
                            sep=delimiter,
