@@ -26,24 +26,29 @@ print(f"The config file used: {text_color(args.config_file, 'bright green')}")
 
 
 def main():
+    ### Load parameters from config file.
     with open(args.config_file, "r") as stream:
         data = yaml.load(stream, Loader=yaml.FullLoader)
+    verbose = data["general"]["verbose"]
     project_name = data["general"]["project_name"]
     parent_output_folder = Path(data["general"]["output_folder"])
-    print(project_name)
-    print(parent_output_folder)
     output_folder = create_folder(project_name,
                                   parent_output_folder,
                                   verbose=True)
     input_file = Path(data["general"]["input_whole_matrix"])
     df_whole = read_df(input_file)
-    print(f'The shape of whole matrix: {df_whole.shape}')
     input_sig_file = Path(data["general"]["input_sig_matrix"])
     df_sig = read_df(input_sig_file)
-    print(f'The shape of significance matrix: {df_sig.shape}')
     # print(df_sig)
     obo_file = Path(data["general"]["obo_file"])
     
+    print(f"Project name: {text_color(project_name, color='bright_yellow')}")
+    if verbose:
+        print(f"Project name: {text_color(project_name, color='bright_yellow')}")
+        print(f"Project folder path: {text_color(output_folder, 'gray')}")
+        print(f'The shape of whole matrix: {df_whole.shape}')
+        print(f'The shape of significance matrix: {df_sig.shape}')
+        print(f"The obo file used: {text_color(obo_file, 'bright_yellow')}")
 
     # output_folder = Path('C:/Repositories/Enrichment_analysis/analysis/update')
     # # Read Matrix text file into pandas DataFrame
@@ -60,11 +65,13 @@ def main():
     col_cat = data["go"]["column_category"]
     select_cat = data["go"]["select_category"]
     df_select_cat = df_cat_filter(df_sig, col_cat, select_cat)
-    print(f'The shape of selected category: {df_select_cat.shape}')
+    if verbose:
+        print(f'The shape of selected category: {df_select_cat.shape}')
     if data["go"]["save_selected_file"]:
         df_select_cat.to_csv(output_folder / data["go"]["selected_file_name"],
                              index=False,
                              sep='\t')
+    ### Consider KEGG as selection.
     
 
     """
@@ -102,24 +109,28 @@ def main():
     if data["go"]["column_go_depth"]:
         depth_col = data["go"]["column_go_depth"]
     # Annotate GO name (level, depth) based on the GO id.
+    print(f"{text_color('Begin parsing GO name from GO ID.', color='bright_yellow')}")
     df_select_cat_name = parse_go_name(df_select_cat,
                                        obo_file,
                                        data["go"]["column_id"],
                                        data["go"]["column_go_name"],
+                                       verbose,
                                        level_col,
                                        depth_col,
-                                       data["go"]["load_obsolete"])
-    print(df_select_cat_name)
+                                       data["go"]["load_obsolete"],
+                                       data["go"]["remove_obsolete"])
+    # print(df_select_cat_name)
     if data["go"]["save_go_file"]:
-        df_select_cat.to_csv(output_folder / data["go"]["go_file_name"],
-                             index=False,
-                             sep='\t')
+        df_select_cat_name.to_csv(output_folder / data["go"]["go_file_name"],
+                                 index=False,
+                                 sep='\t')
 
+    ### What the above code do.
     # GO_names = [] # Create a list for GO names
     # GO_name(df_GO, obo_file, GO_names)
     # print(GO_names)
     # df_GO['GO name'] = GO_names # Creating a new column named 'GO name' from the list GO_names
-
+    #
     # df_GO.to_csv(output_folder / 'GO_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
     # df_KEGG.to_csv(output_folder / 'KEGG_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
     
@@ -135,6 +146,14 @@ def main():
     # df = df.sort_index()
     # df = df[~df.index.duplicated(keep='first')] ### Remove duplicates and keep only the first one
     # df.to_csv(output_folder / 'Matrix_All_filtered.txt', index=False, sep='\t') ### Create the file
+
+    # ### Filter the df_whole with target GO ID.
+    # # keep the row from df_whole if any GO ID have a match.
+    # # Create a "GO_enriched" column with the matched GO terms. (";" separated)
+    # ## Performe the above task on each category (GO categories):
+    # for i in select_cat:
+
+
 
     # # Create a new list for compare results
     # df_sig = df_all.loc[df_all[significant_name] == '+']
@@ -179,23 +198,46 @@ def level_filter(df, obo_file):
             Row_num += 1
 
 
-'''
-Replace GO term with GO name
-'''
-def parse_go_name(df, obo_file, col, name_col,
+def parse_go_name(df, obo_file, col,
+                  name_col, verbose,
                   level_col=False,
                   depth_col=False,
-                  obsolete=False):
+                  obsolete=False,
+                  remove=False):
+    """Parse GO name with goatools, add to a new column.
+
+    :param df: The input DataFrame
+    :type df: DataFrame
+    :param obo_file: Path to go.obo file
+    :type obo_file: str, Path
+    :param col: Column name containing GO ID
+    :type col: str
+    :param name_col: Column name for GO name
+    :type name_col: str
+    :param level_col: Column name for GO level, defaults to False
+    :type level_col: str, optional
+    :param depth_col: Column name for GO depth, defaults to False
+    :type depth_col: str, optional
+    :param obsolete: Show obsolete GO terms, defaults to False
+    :type obsolete: bool, optional
+    :return: DataFrame with added information
+    :rtype: DataFrame
+    """
     name_list = []
     level_list = []
     depth_list = []
+    obsolete_list = []
     for index, go_id in enumerate(df[col]):
-        term = obo_parser.GODag(obo_file, load_obsolete=obsolete).query_term(go_id)
+        if verbose:
+            term = obo_parser.GODag(obo_file, load_obsolete=obsolete).query_term(go_id)
+        else:
+            term = obo_parser.GODag(obo_file, load_obsolete=obsolete, prt=None).query_term(go_id)
         # term (GO object): [item_id, level, depth, name, namespace]
         # Some GO id may be obsolete or not found from the provided go.obo file.
         # In these cases the result "term" will be "None".
         if term is not None:
-            print(index, go_id, term.name)
+            if verbose:
+                print(index, go_id, term.name)
             # print(term)
             # Save the queried name to DataFrame.
             name_list.append(term.name)
@@ -209,11 +251,14 @@ def parse_go_name(df, obo_file, col, name_col,
                 level_list.append("")
             if depth_col:
                 depth_list.append("")
-    df[name_col] = name_list
+            obsolete_list.append(index)
+    df.loc[:, name_col] = name_list
     if level_col:
-        df[level_col] = level_list
+        df.loc[:, level_col] = level_list
     if depth_col:
-        df[depth_col] = depth_list
+        df.loc[:, depth_col] = depth_list
+    if remove:
+        df.drop(obsolete_list)
     return df
 
 
@@ -256,7 +301,7 @@ def filter_all(df_all, df_GO, cat, rows_list):
         if type(v) == str:
             list_temp = v.split(';')
             match_GO = [] # Create a list for matched GO
-            count = compare_all(df_GO, list_temp,cat)
+            count = compare_all(df_GO, list_temp, cat)
             if count > 0:
                 enriched_GO = ';'.join(match_GO) # transform the list match_GO into a ';' separated string
                 # Add a column 'Enriched GO' to the row based on index
