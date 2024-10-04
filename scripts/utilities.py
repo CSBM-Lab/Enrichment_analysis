@@ -23,8 +23,8 @@ def create_folder(folder_name, path_to_folder, verbose = False):
     """
     final_folder = path_to_folder / folder_name
     if verbose:
-        print(f'Checking if folder "{text_color(folder_name, color="green")}" '
-              f'exists in "{text_color(path_to_folder, color="gray")}"...')
+        print(text_color(f"Checking if folder {folder_name} "
+              f"exists in {path_to_folder}...", color="gray"))
     if folder_name not in os.listdir(path_to_folder):
         if verbose:
             print(f'## Folder "{text_color(folder_name, color="green")}" '
@@ -55,8 +55,8 @@ def text_color(text, color=None, background=None):
        The options are: 
        'black', 'red', 'green', 'yellow',
        'blue', 'magenta', 'cyan', 'white',
-       'gray', 'bright red', 'bright green', 'bright yellow',
-       'bright blue', 'bright magenta', 'bright cyan', 'bright white'
+       'gray', 'bright_red', 'bright_green', 'bright_yellow',
+       'bright_blue', 'bright_magenta', 'bright_cyan', 'bright_white'
 
     :param text: The input text.
     :type text: str
@@ -69,8 +69,8 @@ def text_color(text, color=None, background=None):
     """
     options = ['black', 'red', 'green', 'yellow',
                'blue', 'magenta', 'cyan', 'white',
-               'gray', 'bright red', 'bright green', 'bright yellow',
-               'bright blue', 'bright magenta', 'bright cyan', 'bright white']
+               'gray', 'bright_red', 'bright_green', 'bright_yellow',
+               'bright_blue', 'bright_magenta', 'bright_cyan', 'bright_white']
     fg_code = ['30', '31', '32', '33', '34', '35', '36', '37',
                '90', '91', '92', '93', '94', '95', '96', '97']
     bg_code = ['40', '41', '42', '43', '44', '45', '46', '47',
@@ -100,6 +100,12 @@ def text_color(text, color=None, background=None):
 # nocolor = "\033[0m"
 
 
+def check_odd_even(number):
+    if number % 2 == 0:
+        return "Even"
+    else:
+        return "Odd"
+    
 
 ###====== DataFrame management ======###
 def read_df(file_path,
@@ -168,3 +174,12 @@ def df_cat_filter(df, col, condition):
               f'the provided input is: {text_color(condition, color="red")}')
         sys.exit()
     return df_filtered
+
+
+###====== Error messages ======###
+def error_config(message, check_highlight, config_file):
+        print(f"{text_color('Error', color='bright_red')}: "
+                  f"{message} Please check "
+                  f"{text_color(check_highlight, color='bright_blue')} "
+                  f"of the {text_color(config_file, color='bright_green')}.")
+        sys.exit()

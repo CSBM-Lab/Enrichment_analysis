@@ -10,7 +10,7 @@ from goatools import obo_parser
 from io import StringIO
 from contextlib import suppress
 from pathlib import Path
-from utilities import create_folder, text_color, read_df, df_cat_filter
+from utilities import create_folder, text_color, read_df, df_cat_filter, error_config
 
 
 __author__ = "Johnathan Lin <jagonball@g-mail.nsysu.edu.tw>"
@@ -42,7 +42,6 @@ def main():
     # print(df_sig)
     obo_file = Path(data["general"]["obo_file"])
     
-    print(f"Project name: {text_color(project_name, color='bright_yellow')}")
     if verbose:
         print(f"Project name: {text_color(project_name, color='bright_yellow')}")
         print(f"Project folder path: {text_color(output_folder, 'gray')}")
@@ -60,18 +59,35 @@ def main():
     # df_all = pd.read_csv(MA_file, sep='\t')
     # df.head()
 
-    ## Reduce dataframe to target category.
-    # The annotation category column.
-    col_cat = data["go"]["column_category"]
-    select_cat = data["go"]["select_category"]
-    df_select_cat = df_cat_filter(df_sig, col_cat, select_cat)
-    if verbose:
-        print(f'The shape of selected category: {df_select_cat.shape}')
-    if data["go"]["save_selected_file"]:
-        df_select_cat.to_csv(output_folder / data["go"]["selected_file_name"],
-                             index=False,
-                             sep='\t')
-    ### Consider KEGG as selection.
+    ## Filter the significance DataFrame based on target category.
+    if 'sig_matrix_filter' in data["go"].keys():
+            if not 'column_category' in data["go"]["sig_matrix_filter"].keys():
+                error_message = 'Missing column name.'
+                check_message = 'column_category in sig_matrix_filter section'
+                error_config(error_message, check_message, args.config_file)
+            # The annotation category column.
+            col_cat = data["go"]["sig_matrix_filter"]["column_category"]
+            if not 'select_category' in data["go"]["sig_matrix_filter"].keys():
+                error_message = 'Missing target category(ies).'
+                check_message = 'select_category in sig_matrix_filter section'
+                error_config(error_message, check_message, args.config_file)
+            # The target category(ies).
+            select_cat = data["go"]["sig_matrix_filter"]["select_category"]
+            df_select_cat = df_cat_filter(df_sig, col_cat, select_cat)
+            if verbose:
+                print(f'The selected category: {select_cat}')
+                print(f'The filtered DataFrame based on '
+                      f'selected category: {df_select_cat.shape}')
+            if 'save_to_file' in data["go"]["sig_matrix_filter"].keys():
+                df_select_cat.to_csv(output_folder / 
+                                     data["go"]["sig_matrix_filter"]["save_to_file"],
+                                     index=False,
+                                     sep='\t')
+                if verbose:
+                    file_name = text_color(data["go"]["sig_matrix_filter"]\
+                                           ["save_to_file"], color='magenta')
+                    print(f'Filtered category matrix saved to: {file_name}')
+            ### Consider KEGG as selection.
     
 
     """
@@ -104,12 +120,13 @@ def main():
 
     ## Current DataFrame (df_select_cat) only have GO id, no GO names.
     # Check optional parameters.
-    if data["go"]["column_go_level"]:
+    if "column_go_level" in data["go"].keys():
         level_col = data["go"]["column_go_level"]
-    if data["go"]["column_go_depth"]:
+    if "column_go_depth" in data["go"].keys():
         depth_col = data["go"]["column_go_depth"]
     # Annotate GO name (level, depth) based on the GO id.
-    print(f"{text_color('Begin parsing GO name from GO ID.', color='bright_yellow')}")
+    show_message = 'Begin parsing GO name from GO ID.'
+    print(f"{text_color(show_message, color='bright_yellow')}")
     df_select_cat_name = parse_go_name(df_select_cat,
                                        obo_file,
                                        data["go"]["column_id"],
@@ -125,7 +142,7 @@ def main():
                                  index=False,
                                  sep='\t')
 
-    ### What the above code do.
+    ### Same as what the above code do.
     # GO_names = [] # Create a list for GO names
     # GO_name(df_GO, obo_file, GO_names)
     # print(GO_names)
@@ -152,8 +169,6 @@ def main():
     # # Create a "GO_enriched" column with the matched GO terms. (";" separated)
     # ## Performe the above task on each category (GO categories):
     # for i in select_cat:
-
-
 
     # # Create a new list for compare results
     # df_sig = df_all.loc[df_all[significant_name] == '+']
@@ -333,4 +348,3 @@ def filter_sig(df_sig, df_all, df_GO, cat, rows_list):
 
 if __name__ == '__main__':
     main()
-    
