@@ -7,14 +7,14 @@ general:
     ## Main output folder.
     output_folder: C:/Repositories/Enrichment_analysis/analysis
     ## output_folder: D:/Repositories/Enrichment_analysis/analysis
-    ## Path to full matrix file.
+    ## The full matrix file.
     input_whole_matrix: C:/Repositories/Enrichment_analysis/data/Matrix_All.txt
     ## input_whole_matrix: D:/Repositories/Enrichment_analysis/data/Matrix_All.txt
     ## The column name for significance.
     column_sig: Student's T-test Significant D336H_ipc
     ## The marking for significance.
     sig_mark: +
-    ## Path to the statistical significance matrix. (ex. Fisher's exact test)
+    ## The statistical significance matrix after functional enrichment analysis.
     input_sig_matrix: C:/Repositories/Enrichment_analysis/data/Matrix_404.txt
     ## input_sig_matrix: D:/Repositories/Enrichment_analysis/data/Matrix_404.txt
     ## Path to go.obo file.

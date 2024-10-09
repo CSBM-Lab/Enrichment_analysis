@@ -17,9 +17,9 @@ __author__ = "Johnathan Lin <jagonball@g-mail.nsysu.edu.tw>"
 __email__ = "jagonball@g-mail.nsysu.edu.tw"
 
 parser = argparse.ArgumentParser(
-                    prog='ProgramName',
-                    description='What the program does',
-                    epilog='Text at the bottom of help')
+                    prog='Filter_all.py',
+                    description='Toolkit for functional enrichment analysis.',
+                    epilog='Based on Perseus v1.6.15.0 output matrix, tested on v2.0.3.0')
 parser.add_argument("-c","--config_file", required=True, help="config file with necessary parameters.")
 args = parser.parse_args()
 print(f"The config file used: {text_color(args.config_file, 'bright green')}")
