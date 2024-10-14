@@ -100,12 +100,23 @@ def text_color(text, color=None, background=None):
 # nocolor = "\033[0m"
 
 
+###====== Check variables type ======###
 def check_odd_even(number):
     if number % 2 == 0:
         return "Even"
     else:
         return "Odd"
-    
+
+
+def check_type(var, clas):
+    """
+    class can be str, list, multiple like (int, float)
+    returns True/False
+    """
+    return isinstance(var, clas)
+
+
+
 
 ###====== DataFrame management ======###
 def read_df(file_path,
