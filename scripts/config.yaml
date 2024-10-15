@@ -15,8 +15,8 @@ general:
     ## The marking for significance.
     sig_mark: +
     ## The statistical significance matrix after functional enrichment analysis.
-    input_sig_matrix: C:/Repositories/Enrichment_analysis/data/Matrix_404.txt
-    ## input_sig_matrix: D:/Repositories/Enrichment_analysis/data/Matrix_404.txt
+    input_func_matrix: C:/Repositories/Enrichment_analysis/data/Matrix_404.txt
+    ## input_func_matrix: D:/Repositories/Enrichment_analysis/data/Matrix_404.txt
     ## Path to go.obo file.
     obo_file: C:/Repositories/Enrichment_analysis/data/go.obo
     ## obo_file: D:/Repositories/Enrichment_analysis/data/go.obo

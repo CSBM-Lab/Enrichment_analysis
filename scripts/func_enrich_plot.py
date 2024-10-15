@@ -37,8 +37,8 @@ def main():
                                   verbose=True)
     input_file = Path(data["general"]["input_whole_matrix"])
     df_whole = read_df(input_file)
-    input_sig_file = Path(data["general"]["input_sig_matrix"])
-    df_sig = read_df(input_sig_file)
+    input_func_file = Path(data["general"]["input_func_matrix"])
+    df_sig = read_df(input_func_file)
     # print(df_sig)
     obo_file = Path(data["general"]["obo_file"])
     
@@ -336,7 +336,7 @@ def filter_sig(df_sig, df_all, df_GO, cat, rows_list):
         if type(v) == str:
             list_temp = v.split(';')
             match_GO = [] # Create a list for matched GO
-            count = compare_all(df_GO, list_temp,cat)
+            count = compare_all(df_GO, list_temp, cat)
 
             if count > 0:
                 enriched_GO = ';'.join(match_GO) # transform the list match_GO into a ';' separated string

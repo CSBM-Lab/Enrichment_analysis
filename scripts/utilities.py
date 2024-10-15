@@ -188,9 +188,21 @@ def df_cat_filter(df, col, condition):
 
 
 ###====== Error messages ======###
-def error_config(message, check_highlight, config_file):
-        print(f"{text_color('Error', color='bright_red')}: "
-                  f"{message} Please check "
-                  f"{text_color(check_highlight, color='bright_blue')} "
-                  f"of the {text_color(config_file, color='bright_green')}.")
+def error_config(message, check_highlight, config_file, exit=True):
+    """Print error message for config error and whether to exit program or not.
+
+    :param message: The error message.
+    :type message: str
+    :param check_highlight: Highlited text. ex: "col in go section"
+    :type check_highlight: str
+    :param config_file: Path to config file.
+    :type config_file: str or Path
+    :param exit: To exit the program or not, defaults to True
+    :type exit: bool, optional
+    """
+    print(f"{text_color('Error', color='bright_red')}: "
+              f"{message} Please check "
+              f"{text_color(check_highlight, color='bright_blue')} "
+              f"of the {text_color(config_file, color='bright_green')}.")
+    if exit:
         sys.exit()
