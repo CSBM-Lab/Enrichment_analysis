@@ -161,7 +161,7 @@ def read_df(file_path,
     return df
 
 
-def df_cat_filter(df, col, condition):
+def df_cat_filter(df, col, condition, reset_index=True):
     """Filter category column with values.
 
     :param df: Input DataFrame
@@ -170,13 +170,21 @@ def df_cat_filter(df, col, condition):
     :type col: str
     :param condition: Target value(s) to keep
     :type condition: str, list
+    :param reset_index: To reset index, defaults to True
+    :type reset_index: bool, optional
     :return: The filtered DataFrame
     :rtype: DataFrame
     """
     if isinstance(condition, str):
-        df_filtered = df[df[col] == condition]
+        if reset_index:
+            df_filtered = df[df[col] == condition].copy().reset_index(drop=True)
+        else:
+            df_filtered = df[df[col] == condition].copy()
     elif isinstance(condition, list):
-        df_filtered = df[df[col].isin(condition)]
+        if reset_index:
+            df_filtered = df[df[col].isin(condition)].copy().reset_index(drop=True)
+        else:
+            df_filtered = df[df[col].isin(condition)].copy()
     else:
         print(f'{text_color("Error", color="bright red")}: '
               f'the condition must be '

@@ -82,7 +82,7 @@ def df_filter_col_num(df,
         # Check the required 2nd inputs.
         if not col_name2 or symbol2 or num2: ## Test if this works.
             print(f"Error, 4")
-            os.exit()
+            sys.exit()
     return new_df
 
 
@@ -91,7 +91,7 @@ def df_filter_col_num(df,
 '''
 ### May need to check if additional columns are created,
 ### the reinsert function will have errors or not.
-def locate_group_rows(df, marker='#', reinsert=True):
+def locate_group_rows(df, marker='#', reinsert=False):
     """Locate the first few rows of information starting with 'marker'.
 
     :param df: The data matrix.

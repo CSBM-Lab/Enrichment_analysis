@@ -8,15 +8,25 @@ general:
     output_folder: C:/Repositories/Enrichment_analysis/analysis
     ## output_folder: D:/Repositories/Enrichment_analysis/analysis
     ## The full matrix file.
-    input_whole_matrix: C:/Repositories/Enrichment_analysis/data/Matrix_All.txt
-    ## input_whole_matrix: D:/Repositories/Enrichment_analysis/data/Matrix_All.txt
-    ## The column name for significance.
-    column_sig: Student's T-test Significant D336H_ipc
-    ## The marking for significance.
-    sig_mark: +
+    input_whole_matrix: 
+        file_path: C:/Repositories/Enrichment_analysis/data/Matrix_All.txt
+        ## file_path: D:/Repositories/Enrichment_analysis/data/Matrix_All.txt
+        ## The column name for significance.
+        column_sig: Student's T-test Significant D336H_ipc
+        ## The marking for significance.
+        sig_mark: +
+        ## The file is a Perseus exported matrix.
+        perseus: True
+        ## Reinsert the group information rows after filtering.
+        reinsert: True
     ## The statistical significance matrix after functional enrichment analysis.
-    input_func_matrix: C:/Repositories/Enrichment_analysis/data/Matrix_404.txt
-    ## input_func_matrix: D:/Repositories/Enrichment_analysis/data/Matrix_404.txt
+    input_func_matrix:
+        file_path: C:/Repositories/Enrichment_analysis/data/Matrix_404.txt
+        ## file_path: D:/Repositories/Enrichment_analysis/data/Matrix_404.txt
+        ## The file is a Perseus exported matrix.
+        perseus: True
+        ## Reinsert the group information rows after filtering.
+        reinsert: False
     ## Path to go.obo file.
     obo_file: C:/Repositories/Enrichment_analysis/data/go.obo
     ## obo_file: D:/Repositories/Enrichment_analysis/data/go.obo
@@ -37,7 +47,7 @@ go:
     ### Annotate GO name, level, depth with GO id.
     ## Obsolete settings: https://github.com/tanghaibao/goatools/blob/main/notebooks/godag_obsolete_terms.ipynb
     ## Load obsolete GO terms or not.
-    load_obsolete: False  # Default is "False".
+    load_obsolete: True  # Default is "False".
     ## To remove the rows of obsolete GO terms.
     remove_obsolete: True
     ## The column containing GO id.
@@ -46,7 +56,10 @@ go:
     column_go_name: GO_name
     ## (Optional) Annotate level, depth to new column(s).
     column_go_level: GO_level
+    ## Filter level?
     column_go_depth: GO_depth
+    ## Filter depth?
+    ## (Optional) Show annotating messages.
+    show_message: True  # True, False
     ## Save the result matrix to file.
-    save_go_file: True
-    go_file_name: df_GO_name_drop.txt
+    save_go_file: df_GO_name_drop.txt

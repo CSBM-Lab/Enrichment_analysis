@@ -24,7 +24,7 @@ parser.add_argument("-c","--config_file", required=True, help="config file with 
 args = parser.parse_args()
 print(f"The config file used: {text_color(args.config_file, 'bright green')}")
 
-
+ 
 def main():
     ### Load parameters from config file.
     with open(args.config_file, "r") as stream:
@@ -35,16 +35,21 @@ def main():
     output_folder = create_folder(project_name,
                                   parent_output_folder,
                                   verbose=True)
-    input_file = Path(data["general"]["input_whole_matrix"])
+    para_whole_matrix = data["general"]["input_whole_matrix"]
+    input_file = Path(para_whole_matrix["file_path"])
     df_whole = read_df(input_file)
-    input_func_file = Path(data["general"]["input_func_matrix"])
+    if para_whole_matrix["perseus"]:
+        df_whole, dict_whole_group_rows = locate_group_rows(df_whole)
+    para_sig_matrix = data["general"]["input_func_matrix"]
+    input_func_file = Path(para_sig_matrix["file_path"])
     df_sig = read_df(input_func_file)
-    # print(df_sig)
+    if para_sig_matrix["perseus"]:
+        df_sig, dict_sig_group_rows = locate_group_rows(df_sig)
     obo_file = Path(data["general"]["obo_file"])
     
     if verbose:
         print(f"Project name: {text_color(project_name, color='bright_yellow')}")
-        print(f"Project folder path: {text_color(output_folder, 'gray')}")
+        print(f"Output files will be saved in: {text_color(output_folder, 'gray')}")
         print(f'The shape of whole matrix: {df_whole.shape}')
         print(f'The shape of significance matrix: {df_sig.shape}')
         print(f"The obo file used: {text_color(obo_file, 'bright_yellow')}")
@@ -61,61 +66,32 @@ def main():
 
     ## Filter the significance DataFrame based on target category.
     if 'sig_matrix_filter' in data["go"].keys():
-            if not 'column_category' in data["go"]["sig_matrix_filter"].keys():
-                error_message = 'Missing column name.'
-                check_message = 'column_category in sig_matrix_filter section'
-                error_config(error_message, check_message, args.config_file)
-            # The annotation category column.
-            col_cat = data["go"]["sig_matrix_filter"]["column_category"]
-            if not 'select_category' in data["go"]["sig_matrix_filter"].keys():
-                error_message = 'Missing target category(ies).'
-                check_message = 'select_category in sig_matrix_filter section'
-                error_config(error_message, check_message, args.config_file)
-            # The target category(ies).
-            select_cat = data["go"]["sig_matrix_filter"]["select_category"]
-            df_select_cat = df_cat_filter(df_sig, col_cat, select_cat)
-            if verbose:
-                print(f'The selected category: {select_cat}')
-                print(f'The filtered DataFrame based on '
-                      f'selected category: {df_select_cat.shape}')
-            if 'save_to_file' in data["go"]["sig_matrix_filter"].keys():
-                df_select_cat.to_csv(output_folder / 
-                                     data["go"]["sig_matrix_filter"]["save_to_file"],
-                                     index=False,
-                                     sep='\t')
-                if verbose:
-                    file_name = text_color(data["go"]["sig_matrix_filter"]\
-                                           ["save_to_file"], color='magenta')
-                    print(f'Filtered category matrix saved to: {file_name}')
+        if not 'column_category' in data["go"]["sig_matrix_filter"].keys():
+            error_message = 'Missing column name.'
+            check_message = 'column_category in sig_matrix_filter section'
+            error_config(error_message, check_message, args.config_file)
+        # The annotation category column.
+        col_cat = data["go"]["sig_matrix_filter"]["column_category"]
+        if not 'select_category' in data["go"]["sig_matrix_filter"].keys():
+            error_message = 'Missing target category(ies).'
+            check_message = 'select_category in sig_matrix_filter section'
+            error_config(error_message, check_message, args.config_file)
+        # The target category(ies).
+        select_cat = data["go"]["sig_matrix_filter"]["select_category"]
+        df_select_cat = df_cat_filter(df_sig, col_cat, select_cat)
+        if verbose:
+            print(f'The selected category: {select_cat}')
+            print(f'The filtered DataFrame based on '
+                  f'selected category: {df_select_cat.shape}')
+        check_save_file(data["go"]["sig_matrix_filter"],
+                        "save_to_file",
+                        para_sig_matrix["reinsert"],
+                        df_select_cat,
+                        dict_sig_group_rows,
+                        output_folder,
+                        verbose,
+                        "Filtered category matrix saved to:")
             ### Consider KEGG as selection.
-    
-
-    """
-    ## Skipping this part for now.
-    '''
-    Filter with obo_parser, [Level >= 3], then put the rows into the list Row_keep
-    then use list_add to add the rows to keep into list_GO for later creating new filtered_DataFrame
-    '''
-    list_GO = []
-    level_filter(df_GOBP, obo_file)
-    ## The above level_filter will create 2 lists: Row_keep and Row_drop,
-    ## indicating the row numbers to keep or drop.
-    print('Rows to keep:', Row_keep) ### print the list Row_keep to check
-    list_add(list_GO, df_GOBP)
-    ## The above list_add will append the rows to keep as values.
-    ## Based on the list Row_keep.
-
-    level_filter(df_GOCC, obo_file)
-    print('Rows to keep:', Row_keep) ### print the list Row_keep to check
-    list_add(list_GO, df_GOCC)
-
-    level_filter(df_GOMF, obo_file)
-    print('Rows to keep:', Row_keep) ### print the list Row_keep to check
-    list_add(list_GO, df_GOMF)
-
-    # Create DataFrame from the list, containing all the GO terms filtered, using original df's keys
-    df_GO = pd.DataFrame(list_GO, columns=df.keys())
-    """
 
 
     ## Current DataFrame (df_select_cat) only have GO id, no GO names.
@@ -124,6 +100,7 @@ def main():
         level_col = data["go"]["column_go_level"]
     if "column_go_depth" in data["go"].keys():
         depth_col = data["go"]["column_go_depth"]
+        
     # Annotate GO name (level, depth) based on the GO id.
     show_message = 'Begin parsing GO name from GO ID.'
     print(f"{text_color(show_message, color='bright_yellow')}")
@@ -135,12 +112,18 @@ def main():
                                        level_col,
                                        depth_col,
                                        data["go"]["load_obsolete"],
-                                       data["go"]["remove_obsolete"])
+                                       data["go"]["remove_obsolete"],
+                                       data["go"]["show_message"])
     # print(df_select_cat_name)
-    if data["go"]["save_go_file"]:
-        df_select_cat_name.to_csv(output_folder / data["go"]["go_file_name"],
-                                 index=False,
-                                 sep='\t')
+    check_save_file(data["go"],
+                    "save_go_file",
+                    para_sig_matrix["reinsert"],
+                    df_select_cat_name,
+                    dict_sig_group_rows,
+                    output_folder,
+                    verbose,
+                    "Annotated matrix saved to:")
+        
 
     ### Same as what the above code do.
     # GO_names = [] # Create a list for GO names
@@ -184,6 +167,35 @@ def main():
     # df.to_csv(output_folder / 'Matrix_sig_filtered.txt', index=False, sep='\t') ### Create the file
 
 
+### This part may now be done by filtering the new column column_go_level.
+"""
+    ## Skipping this part for now.
+    '''
+    Filter with obo_parser, [Level >= 3], then put the rows into the list Row_keep
+    then use list_add to add the rows to keep into list_GO for later creating new filtered_DataFrame
+    '''
+    list_GO = []
+    level_filter(df_GOBP, obo_file)
+    ## The above level_filter will create 2 lists: Row_keep and Row_drop,
+    ## indicating the row numbers to keep or drop.
+    print('Rows to keep:', Row_keep) ### print the list Row_keep to check
+    list_add(list_GO, df_GOBP)
+    ## The above list_add will append the rows to keep as values.
+    ## Based on the list Row_keep.
+
+    level_filter(df_GOCC, obo_file)
+    print('Rows to keep:', Row_keep) ### print the list Row_keep to check
+    list_add(list_GO, df_GOCC)
+
+    level_filter(df_GOMF, obo_file)
+    print('Rows to keep:', Row_keep) ### print the list Row_keep to check
+    list_add(list_GO, df_GOMF)
+
+    # Create DataFrame from the list, containing all the GO terms filtered, using original df's keys
+    df_GO = pd.DataFrame(list_GO, columns=df.keys())
+    """
+
+
 
 '''
 Use the list Row_keep to add the rows from [DataFrame] to list_GO,
@@ -218,7 +230,8 @@ def parse_go_name(df, obo_file, col,
                   level_col=False,
                   depth_col=False,
                   obsolete=False,
-                  remove=False):
+                  remove=False,
+                  prt=False):
     """Parse GO name with goatools, add to a new column.
 
     :param df: The input DataFrame
@@ -243,37 +256,44 @@ def parse_go_name(df, obo_file, col,
     depth_list = []
     obsolete_list = []
     for index, go_id in enumerate(df[col]):
-        if verbose:
-            term = obo_parser.GODag(obo_file, load_obsolete=obsolete).query_term(go_id)
+            # GODag optional: optional_attrs={'consider', 'replaced_by'}
+        if prt:
+            term = obo_parser.GODag(obo_file,
+                                    load_obsolete=obsolete).query_term(go_id)
         else:
-            term = obo_parser.GODag(obo_file, load_obsolete=obsolete, prt=None).query_term(go_id)
+            term = obo_parser.GODag(obo_file,
+                                    load_obsolete=obsolete,
+                                    prt=None).query_term(go_id)
         # term (GO object): [item_id, level, depth, name, namespace]
         # Some GO id may be obsolete or not found from the provided go.obo file.
         # In these cases the result "term" will be "None".
+        # Set "remove" to False if "obsolete" is not loaded.
         if term is not None:
             if verbose:
                 print(index, go_id, term.name)
-            # print(term)
             # Save the queried name to DataFrame.
             name_list.append(term.name)
             if level_col:
                 level_list.append(term.level)
             if depth_col:
                 depth_list.append(term.depth)
-        else:
+            if obsolete:  # Obsolete terms loaded.
+                if term.is_obsolete:  # Mark obsolete rows for removal.
+                    obsolete_list.append(index)
+        else:  # "term" is empty, mark these rows for removal.
             name_list.append("")
             if level_col:
                 level_list.append("")
             if depth_col:
                 depth_list.append("")
             obsolete_list.append(index)
-    df.loc[:, name_col] = name_list
+    df[name_col] = name_list
     if level_col:
-        df.loc[:, level_col] = level_list
+        df[level_col] = level_list
     if depth_col:
-        df.loc[:, depth_col] = depth_list
+        df[depth_col] = depth_list
     if remove:
-        df.drop(obsolete_list)
+        df = df.drop(obsolete_list)
     return df
 
 
@@ -344,6 +364,87 @@ def filter_sig(df_sig, df_all, df_GO, cat, rows_list):
                 df_all.loc[df_all.index[i], 'Enriched GO'] = enriched_GO
                 rows_list.append(df_sig.iloc[i])
     return rows_list
+
+
+def check_save_file(para_parent,
+                    para_save,
+                    para_reinsert,
+                    df,
+                    dict_rows,
+                    output_folder,
+                    verbose=False,
+                    text=None):
+    """Save files.
+
+    :param para_parent: Config parent level
+    :type para_parent: dict
+    :param para_save: Config save file "key"
+    :type para_save: str
+    :param para_reinsert: Config reinsert
+    :type para_reinsert: bool
+    :param df: DataFrame to save
+    :type df: DataFrame
+    :param dict_rows: Rows to annotate
+    :type dict_rows: dict
+    :param output_folder: Path to output folder
+    :type output_folder: str, Path
+    :param verbose: To show , defaults to False
+    :type verbose: bool, optional
+    :param text: _description_, defaults to None
+    :type text: _type_, optional
+    """
+    if para_save in para_parent:
+        if para_reinsert:
+            df = reinsert_rows(df, dict_rows)
+        df.to_csv(output_folder / para_parent[para_save],
+                  index=False,
+                  sep='\t')
+    if verbose:
+        file_path = text_color(para_parent[para_save], color='magenta')
+        print(f'{text} {file_path}')
+
+
+''' 
+!!! Perseus output matrix specific function !!!
+'''
+### May need to check if additional columns are created,
+### the reinsert function will have errors or not.
+def locate_group_rows(df, marker='#', reinsert=False):
+    """Locate the first few rows of information starting with 'marker'.
+
+    :param df: The data matrix.
+    :type df: DataFrame
+    :param marker: The marker for information rows, defaults to '#'
+    :type marker: str, optional
+    :param reinsert: To reinsert the rows or not, defaults to True
+    :type reinsert: bool, optional
+    :return: The removed DataFrame
+    :rtype: DataFrame
+    :return: A dictionary of removed rows, with index as keys
+    :rtype: dict
+    """
+    rows_group_info = {}
+    for index, row in df.iterrows():
+        if row.iloc[0].startswith(marker):
+            # Row starts with "#"
+            rows_group_info[index] = row
+        else:  # Break the loop once no '#' is there.
+            break
+        rows_group_info.keys()
+    ### Remove the rows and reset index (drop original index).
+    df = df.drop(rows_group_info.keys(), axis=0).reset_index(drop=True)
+    
+    ##!!! The reinsert can be moved to the end of the program,
+    ##!!! or another function before saving output.
+    return df, rows_group_info
+
+
+def reinsert_rows(df, dict_rows):
+    ### Insert the group info rows back to the DataFrame.
+    # Loop the dictionary to insert row(s).
+    for index, row in dict_rows.items():
+        df.iloc[index] = row
+    return df
 
 
 if __name__ == '__main__':
