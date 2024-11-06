@@ -214,3 +214,25 @@ def error_config(message, check_highlight, config_file, exit=True):
               f"of the {text_color(config_file, color='bright_green')}.")
     if exit:
         sys.exit()
+
+
+###====== Utilities ======###
+### Display run time.
+def time(): # The function block is only for the code not to run.
+    from time import time, sleep, strftime, gmtime
+
+    time_start = time()
+    # sleep(5)
+    time_end = time()
+    days = None
+    time_used = time_end - time_start
+    time_format = strftime("%H:%M:%S", gmtime(time_used))
+    if time_used >= 86400:
+        days = time_used // 86400
+        time_used %= 86400
+        show_time = text_color(f"{days} day(s) {time_format}",
+                               color='bright_cyan')
+    else:
+        show_time = text_color(f"{time_format}", color='bright_cyan')
+
+    print(text_color(f"Total time taken: {show_time}"))
