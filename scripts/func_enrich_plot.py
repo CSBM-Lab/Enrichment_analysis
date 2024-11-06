@@ -54,25 +54,17 @@ def main():
         print(f'The shape of significance matrix: {df_sig.shape}')
         print(f"The obo file used: {text_color(obo_file, 'bright_yellow')}")
 
-    # output_folder = Path('C:/Repositories/Enrichment_analysis/analysis/update')
-    # # Read Matrix text file into pandas DataFrame
-    # M_file = Path('C:/Repositories/Enrichment_analysis/data/Matrix_404.txt')
-    # MA_file = Path('C:/Repositories/Enrichment_analysis/data/Matrix_All.txt')
-    # significant_name = "Student's T-test Significant D336H_ipc"
-    # obo_file = Path('C:/Repositories/Enrichment_analysis/data/go.obo')
-    # df = pd.read_csv(M_file, sep='\t')
-    # df_all = pd.read_csv(MA_file, sep='\t')
-    # df.head()
 
     ## Filter the significance DataFrame based on target category.
+    ## Set in config.yaml > go > sig_matrix_filter.
     if 'sig_matrix_filter' in data["go"].keys():
-        if not 'column_category' in data["go"]["sig_matrix_filter"].keys():
+        if 'column_category' not in data["go"]["sig_matrix_filter"].keys():
             error_message = 'Missing column name.'
             check_message = 'column_category in sig_matrix_filter section'
             error_config(error_message, check_message, args.config_file)
         # The annotation category column.
         col_cat = data["go"]["sig_matrix_filter"]["column_category"]
-        if not 'select_category' in data["go"]["sig_matrix_filter"].keys():
+        if 'select_category' not in data["go"]["sig_matrix_filter"].keys():
             error_message = 'Missing target category(ies).'
             check_message = 'select_category in sig_matrix_filter section'
             error_config(error_message, check_message, args.config_file)
@@ -123,48 +115,6 @@ def main():
                     output_folder,
                     verbose,
                     "Annotated matrix saved to:")
-        
-
-    ### Same as what the above code do.
-    # GO_names = [] # Create a list for GO names
-    # GO_name(df_GO, obo_file, GO_names)
-    # print(GO_names)
-    # df_GO['GO name'] = GO_names # Creating a new column named 'GO name' from the list GO_names
-    #
-    # df_GO.to_csv(output_folder / 'GO_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
-    # df_KEGG.to_csv(output_folder / 'KEGG_filtered.txt', index=False, sep='\t') ### Create the file for Filter_plotter.py
-    
-    # # Create a new list for compare results
-    # #df_GO = pd.read_csv(output_folder / 'LL3_GO_filtered.txt', sep='\t') ### skip the above process for testing
-    # rows_list = []
-    # rows_list = filter_all(df_all, df_GO, 'GOBP', rows_list)
-    # rows_list = filter_all(df_all, df_GO, 'GOCC', rows_list)
-    # rows_list = filter_all(df_all, df_GO, 'GOMF', rows_list)
-    
-    # # Create DataFrame from the list
-    # df = pd.DataFrame(rows_list, columns=df_all.keys())
-    # df = df.sort_index()
-    # df = df[~df.index.duplicated(keep='first')] ### Remove duplicates and keep only the first one
-    # df.to_csv(output_folder / 'Matrix_All_filtered.txt', index=False, sep='\t') ### Create the file
-
-    # ### Filter the df_whole with target GO ID.
-    # # keep the row from df_whole if any GO ID have a match.
-    # # Create a "GO_enriched" column with the matched GO terms. (";" separated)
-    # ## Performe the above task on each category (GO categories):
-    # for i in select_cat:
-
-    # # Create a new list for compare results
-    # df_sig = df_all.loc[df_all[significant_name] == '+']
-    # rows_list = []
-    # rows_list = filter_sig(df_sig, df_all, df_GO, 'GOBP', rows_list)
-    # rows_list = filter_sig(df_sig, df_all, df_GO, 'GOCC', rows_list)
-    # rows_list = filter_sig(df_sig, df_all, df_GO, 'GOMF', rows_list)
-
-    # # Create DataFrame from the list
-    # df = pd.DataFrame(rows_list, columns=df_all.keys())
-    # df = df.sort_index()
-    # df = df[~df.index.duplicated(keep='first')] ### Remove duplicates and keep only the first one
-    # df.to_csv(output_folder / 'Matrix_sig_filtered.txt', index=False, sep='\t') ### Create the file
 
 
 ### This part may now be done by filtering the new column column_go_level.
@@ -374,7 +324,7 @@ def check_save_file(para_parent,
                     output_folder,
                     verbose=False,
                     text=None):
-    """Save files.
+    """Save files based on settings.
 
     :param para_parent: Config parent level
     :type para_parent: dict

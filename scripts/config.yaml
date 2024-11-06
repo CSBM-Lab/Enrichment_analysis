@@ -5,31 +5,29 @@ general:
     ## Project name. (A subfolder will be created for outputs.)
     project_name: 002_iPSC
     ## Main output folder.
-    output_folder: C:/Repositories/Enrichment_analysis/analysis
-    ## output_folder: D:/Repositories/Enrichment_analysis/analysis
+    output_folder: D:/Repositories/Enrichment_analysis/analysis
     ## The full matrix file.
     input_whole_matrix: 
-        file_path: C:/Repositories/Enrichment_analysis/data/Matrix_All.txt
-        ## file_path: D:/Repositories/Enrichment_analysis/data/Matrix_All.txt
+        file_path: D:/Repositories/Enrichment_analysis/data/Matrix_All.txt
         ## The column name for significance.
         column_sig: Student's T-test Significant D336H_ipc
         ## The marking for significance.
         sig_mark: +
         ## The file is a Perseus exported matrix.
+        ## (Setting to True will remove group information rows before processing)
         perseus: True
         ## Reinsert the group information rows after filtering.
         reinsert: True
     ## The statistical significance matrix after functional enrichment analysis.
     input_func_matrix:
-        file_path: C:/Repositories/Enrichment_analysis/data/Matrix_404.txt
-        ## file_path: D:/Repositories/Enrichment_analysis/data/Matrix_404.txt
+        file_path: D:/Repositories/Enrichment_analysis/data/Matrix_404.txt
         ## The file is a Perseus exported matrix.
+        ## (Setting to True will remove group information rows before processing)
         perseus: True
         ## Reinsert the group information rows after filtering.
         reinsert: False
     ## Path to go.obo file.
-    obo_file: C:/Repositories/Enrichment_analysis/data/go.obo
-    ## obo_file: D:/Repositories/Enrichment_analysis/data/go.obo
+    obo_file: D:/Repositories/Enrichment_analysis/data/go.obo
 
 ##====== Gene ontology parameters ======###
 go:
@@ -56,9 +54,9 @@ go:
     column_go_name: GO_name
     ## (Optional) Annotate level, depth to new column(s).
     column_go_level: GO_level
-    ## Filter level?
+    ## (To do) Filter level?
     column_go_depth: GO_depth
-    ## Filter depth?
+    ## (To do) Filter depth?
     ## (Optional) Show annotating messages.
     show_message: True  # True, False
     ## Save the result matrix to file.
