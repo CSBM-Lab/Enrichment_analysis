@@ -6,30 +6,31 @@ for plot drawing
 import pandas as pd
 import sys
 import operator
-from utilities import read_df, check_type
+from utilities import read_df, check_type, error_config
 from pathlib import Path
 
 
 def main():
     ### TEST ###
-    input_func_file = Path("C:/Repositories/Enrichment_analysis/data/Matrix_404.txt")
-    input_whole_matrix = Path("C:/Repositories/Enrichment_analysis/data/Matrix_All.txt")
+    input_func_file = Path("D:/Repositories/Enrichment_analysis/data/Matrix_404.txt")
+    input_whole_matrix = Path("D:/Repositories/Enrichment_analysis/data/Matrix_All.txt")
     df_sig = read_df(input_func_file)
     print(df_sig.shape)
     df_whole = read_df(input_whole_matrix)
     print(df_whole.shape)
     target_col = "Intersection size"
-    num_cutoff = 0
-    symbol = "="
-    condition = "keep"
+    num_cutoff = 5
+    symbol = "<"
+    condition = "keeep"  # "keep" or else
 
-    # df_sig, dict_group_rows_sig = locate_group_rows(df_sig)
-    df_whole, dict_group_rows_whole = locate_group_rows(df_whole)
+    df_sig, dict_group_rows_sig = locate_group_rows(df_sig)
+    # df_whole, dict_group_rows_whole = locate_group_rows(df_whole)
     print(df_whole.head())
-    print(dict_group_rows_whole)
+    # print(dict_group_rows_whole)
 
+    ## Turn target column into float.
     # print(df_sig.dtypes)
-    # df_sig[target_col] = df_sig[target_col].astype(float)
+    df_sig[target_col] = df_sig[target_col].astype(float)
     # print(df_sig.dtypes)
     
 
@@ -37,12 +38,13 @@ def main():
     # print(operator_dict[symbol])
     # print(operator_dict[symbol](df_sig[target_col], num_cutoff))
 
-    # df_new = df_filter_col_num(df_sig,
-    #                            col_name=target_col,
-    #                            symbol=symbol,
-    #                            num=num_cutoff)
+    df_new = df_filter_col_num(df_sig,
+                               col_name=target_col,
+                               symbol=symbol,
+                               num=num_cutoff,
+                               condition=condition)
     
-    # print(df_new.shape)    
+    print(df_new.shape)    
 
 
 operator_dict = {'>': operator.gt,
@@ -52,6 +54,8 @@ operator_dict = {'>': operator.gt,
                  '<=': operator.le,
                  '!=': operator.ne}
 
+
+### (To do) Move to utilities, also modify the df_cat_filter
 ## Remove rows based on numerical match.
 def df_filter_col_num(df,
                       col_name,
@@ -64,17 +68,19 @@ def df_filter_col_num(df,
                       condition='keep'):
     # Check inputs: symbol should be str and within operator_dict.keys()
     if not ((type(symbol)==str) and (symbol in operator_dict.keys())):
-        print(f"Error, 1")
-        sys.exit()
+        error_message = 'Invalid operator.'
+        check_message = 'symbol in ??? section'
+        error_config(error_message, check_message, "config.yaml")#args.config_file)
     # Check inputs: num should be (int, float).
     if not check_type(num, (int, float)):
-        print(f"Error, 2")
-        sys.exit()
+        error_message = 'Invalid operator.'
+        check_message = 'symbol_2 in ??? section'
+        error_config(error_message, check_message, "config.yaml")#args.config_file)
     if not connect:  # One condition only.
         if condition=='keep':
             new_df = df[operator_dict[symbol](df[col_name], num)]
         else: # (contition='remove')
-            new_df
+            new_df = df[~operator_dict[symbol](df[col_name], num)]
     else:  # Two conditions
         # Check inputs: connect should be str.
         if not check_type(connect, str):
@@ -85,7 +91,7 @@ def df_filter_col_num(df,
             sys.exit()
     return new_df
 
-
+ 
 ''' 
 !!! Perseus output matrix specific function !!!
 '''
